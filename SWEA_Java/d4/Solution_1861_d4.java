@@ -7,26 +7,26 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-public class Solution_1861_정사각형방_구미_4_손현주 {
-	// 방을 만든다.
+public class Solution_1861_d4{
+	// 諛⑹쓣 留뚮뱺�떎.
 	static int[][] Room;
 	static int[] di = { -1, 1, 0, 0 };
 	static int[] dj = { 0, 0, -1, 1 };
 	static int N;
-	static LinkedList<int[]> Length = new LinkedList<int[]>(); // 방 숫자[0], 길이[1]
+	static LinkedList<int[]> Length = new LinkedList<int[]>(); // 諛� �닽�옄[0], 湲몄씠[1]
 	static int cnt = 1;
 	public static void main(String[] args) throws Exception {
-		System.setIn(new FileInputStream("res/Input_d4_정사각형방.txt"));
+		System.setIn(new FileInputStream("res/Input_d4_�젙�궗媛곹삎諛�.txt"));
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
-		// 테스트 케이스 수를 입력받는다.
+		// �뀒�뒪�듃 耳��씠�뒪 �닔瑜� �엯�젰諛쏅뒗�떎.
 		int T = Int(br.readLine());
-		// 테스트 케이스 수 만큼 입력받는다.
+		// �뀒�뒪�듃 耳��씠�뒪 �닔 留뚰겮 �엯�젰諛쏅뒗�떎.
 		for (int tc = 1; tc <= T; ++tc) {
-			// 방의 사이즈를 입력받는다.
+			// 諛⑹쓽 �궗�씠利덈�� �엯�젰諛쏅뒗�떎.
 			N = Int(br.readLine());
 			Room = new int[N][N];
-			// 각 방의 숫자를 입력받는다.
+			// 媛� 諛⑹쓽 �닽�옄瑜� �엯�젰諛쏅뒗�떎.
 			for (int i = 0; i < N; ++i) {
 				st = new StringTokenizer(br.readLine(), " ");
 				Room[i] = new int[N];
@@ -34,20 +34,21 @@ public class Solution_1861_정사각형방_구미_4_손현주 {
 					Room[i][j] = Int(st.nextToken());
 				}
 			}
-			// 탐방한다.
+			// �깘諛⑺븳�떎.
 			for(int i=0; i<N; ++i) {
 				for(int j=0; j<N; ++j) {
+					cnt =1;
 					Search(i,j);
 					Length.offer(new int[] {Room[i][j],cnt});
 				}
 			}
-			// 정렬한다.
+			// �젙�젹�븳�떎.
 			Collections.sort(Length, (o1,o2)-> {
 				if(o2[1]==o1[1])
 					return Integer.compare(o1[0], o2[0]);
 				return Integer.compare(o2[1], o1[1]);
 			});
-			// 출력한다.
+			// 異쒕젰�븳�떎.
 			System.out.println("#"+tc+" "+Length.peek()[0]+" "+Length.peek()[1]);
 			Length.clear();
 		}
@@ -55,9 +56,8 @@ public class Solution_1861_정사각형방_구미_4_손현주 {
 	}
 
 	static void Search(int x, int y) {
-		// 4방 탐색을 한다.
+		// 4諛� �깘�깋�쓣 �븳�떎.
 		for (int d = 0; d < 4; ++d) {
-			if(d==0) cnt =1;
 			int ni = x + di[d];
 			int nj = y + dj[d];
 			if(isBoundary(ni,nj) && Room[ni][nj]-Room[x][y]==1) {
