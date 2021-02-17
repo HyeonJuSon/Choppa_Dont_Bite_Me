@@ -24,7 +24,7 @@ public class bj_15686 {
 		final int chicken = 2;
 		N = Int(st.nextToken());
 		M = Int(st.nextToken());
-		for (int i = 1; i <= N; ++i) { // 도시의 부분들을 입력 받는다.
+		for (int i = 1; i <= N; ++i) { // �룄�떆�쓽 遺�遺꾨뱾�쓣 �엯�젰 諛쏅뒗�떎.
 			st = new StringTokenizer(br.readLine(), " ");
 			for (int j = 1; j <= N; ++j) {
 				int tmp = Int(st.nextToken());
