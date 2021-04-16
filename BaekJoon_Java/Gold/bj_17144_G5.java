@@ -115,13 +115,6 @@ public class bj_17144_G5 {
 		}
 	}
 	
-	static boolean isOriDusts(int x, int y) {
-		for(Pos dust : dusts) {
-			if(x==dust.x && y == dust.y) return true; 
-		}
-		return false;
-	}
-	
 	static boolean isInArea(int x, int y) {
 		return 0 <= x && x < R && 0 <= y && y < C;
 	}
