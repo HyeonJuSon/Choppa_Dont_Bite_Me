@@ -13,55 +13,55 @@ public class swea_2115_test {
 		int T = stoi(br.readLine());
 		for(int tc=1;tc<=T;++tc) {
 			StringTokenizer st = new StringTokenizer(br.readLine()," ");
-			N = stoi(st.nextToken());//¹úÅëÅ©±â
-			M = stoi(st.nextToken());//¹úÅë°³¼ö
-			C = stoi(st.nextToken());//²ÜÃ¤ÃëÃÖ´ë¾ç
-			map = new int[N][N];//¹úÅë¸Ê
+			N = stoi(st.nextToken());//ë²Œí†µí¬ê¸°
+			M = stoi(st.nextToken());//ë²Œí†µê°œìˆ˜
+			C = stoi(st.nextToken());//ê¿€ì±„ì·¨ìµœëŒ€ì–‘
+			map = new int[N][N];//ë²Œí†µë§µ
 			input = new int[2];
-			max = Integer.MIN_VALUE; // ÃÖ´ë ¹ú²Ü
+			max = Integer.MIN_VALUE; // ìµœëŒ€ ë²Œê¿€
 			for(int i=0;i<N;++i) {
 				st = new StringTokenizer(br.readLine()," ");
 				for(int j=0;j<N;++j) map[i][j] = stoi(st.nextToken());
 			}
-			//Å½»öÀ» ½ÃÀÛÇÑ´Ù.
+			//íƒìƒ‰ì„ ì‹œìž‘í•œë‹¤.
 			searchHoney(0,0);
 			sb.append("#").append(tc).append(" ").append(max).append('\n');
 		}
 		System.out.println(sb);
 	}
 	static void searchHoney(int start, int cnt) {
-		if(cnt == 2) { // °³¼ö ¸¸Å­ ´Ù °ñ¶ú´Ù¸é ?(ÀÏ²ÛÀÌ µÎ¸íÀÓ)
-			// °ãÄ¡¸é ¸®ÅÏÇØÁØ´Ù.input[1]ÀÌ input[0]~input[0]+M-1°ú °ãÄ¡¸é ¾ÈµÈ´Ù.
+		if(cnt == 2) { // ê°œìˆ˜ ë§Œí¼ ë‹¤ ê³¨ëžë‹¤ë©´ ?(ì¼ê¾¼ì´ ë‘ëª…ìž„)
+			// ê²¹ì¹˜ë©´ ë¦¬í„´í•´ì¤€ë‹¤.input[1]ì´ input[0]~input[0]+M-1ê³¼ ê²¹ì¹˜ë©´ ì•ˆëœë‹¤.
 			if(input[0]<input[1] && input[1]<input[0]+M) return;
-			// ÇàÀÌ ´Ù¸£¸é °¡·Î·Î ¿¬¼ÓµÈ°Ô ¾Æ´Ï¹Ç·Î ¸®ÅÏÇØÁØ´Ù.(½ÃÀÛ°ú³¡ÀÌ ´Ù¸¥ÇàÀÌ¸é‰Î)
-			if(input[0]/N != (input[0]+(M-1))/N) return; // ¹úÅë A
-			if(input[1]/N != (input[1]+(M-1))/N) return; // ¹úÅë B
-			// »ÌÈù ¹úÅëÀ¸·Î ÃÖ´ë ¾çÀÎÁö »ìÆìº¸°í °»½ÅÇØÁØ´Ù.
+			// í–‰ì´ ë‹¤ë¥´ë©´ ê°€ë¡œë¡œ ì—°ì†ëœê²Œ ì•„ë‹ˆë¯€ë¡œ ë¦¬í„´í•´ì¤€ë‹¤.(ì‹œìž‘ê³¼ëì´ ë‹¤ë¥¸í–‰ì´ë©´Â‰)
+			if(input[0]/N != (input[0]+(M-1))/N) return; // ë²Œí†µ A
+			if(input[1]/N != (input[1]+(M-1))/N) return; // ë²Œí†µ B
+			// ë½‘ížŒ ë²Œí†µìœ¼ë¡œ ìµœëŒ€ ì–‘ì¸ì§€ ì‚´íŽ´ë³´ê³  ê°±ì‹ í•´ì¤€ë‹¤.
 			max = Math.max(max, getRevenu(input[0], input[1]));
 			return;
 		}
-		for(int i=start;i<N*N;++i) { // 0-15±îÁöÀÇ ¹è¿­ÀÎµ¦½º¸¦ 2¸¸Å­ »Ì´Â´Ù.
+		for(int i=start;i<N*N;++i) { // 0-15ê¹Œì§€ì˜ ë°°ì—´ì¸ë±ìŠ¤ë¥¼ 2ë§Œí¼ ë½‘ëŠ”ë‹¤.
 			input[cnt] = i;
 			searchHoney(i+1,cnt+1);
 		}
 	}
 	
-	// ÀÌÀÍ°è»êÇØ¼­ ¹ÝÈ¯ÇØÁØ´Ù.
+	// ì´ìµê³„ì‚°í•´ì„œ ë°˜í™˜í•´ì¤€ë‹¤.
 	private static int getRevenu(int honeyA, int honeyB) {
 		revsumA = 0;
 		for(int i=1;i<=M;++i) {
-			check(0,honeyA,honeyA+M,i,0,0,0); // 1°³..2°³...3°³..m°³ »Ì±â
+			check(0,honeyA,honeyA+M,i,0,0,0); // 1ê°œ..2ê°œ...3ê°œ..mê°œ ë½‘ê¸°
 		}
 		revsumB = 0;
 		for(int i=1;i<=M;++i) {
 			check(1,honeyB,honeyB+M,i,0,0,0);
 		}
-		int revenu = revsumA + revsumB;//ÀüÃ¼ ¼öÀÍÀ» ´õÇØÁÖ°í
-		return revenu; // ¹ÝÈ¯ÇØÁØ´Ù.
+		int revenu = revsumA + revsumB;//ì „ì²´ ìˆ˜ìµì„ ë”í•´ì£¼ê³ 
+		return revenu; // ë°˜í™˜í•´ì¤€ë‹¤.
 	}
 	static void check(int type, int start, int n, int R, int cnt, int sum, int rev) {
-		if(cnt == R) { // 1°³...2..R°³ »Ì¾Æ¼­ ¸¸µé¼ö ÀÖ´Â ÃÖ´ëÀÌÀÍÀ» ¸¸µé¾î³½´Ù.
-			if(sum <= C) { // ¼ö¿ë·® ¹üÀ§ ¾ÈÀÌ¸é  ÀÌÀÍÀ» °»½ÅÇÑ´Ù.
+		if(cnt == R) { // 1ê°œ...2..Rê°œ ë½‘ì•„ì„œ ë§Œë“¤ìˆ˜ ìžˆëŠ” ìµœëŒ€ì´ìµì„ ë§Œë“¤ì–´ë‚¸ë‹¤.
+			if(sum <= C) { // ìˆ˜ìš©ëŸ‰ ë²”ìœ„ ì•ˆì´ë©´  ì´ìµì„ ê°±ì‹ í•œë‹¤.
 				if(type == 0) revsumA= Math.max(revsumA, rev);
 				else revsumB = Math.max(revsumB, rev);
 			}
