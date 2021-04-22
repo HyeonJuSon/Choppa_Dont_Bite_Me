@@ -5,7 +5,7 @@ import java.util.*;
 
 public class swea_2115_test {
 
-	static int N,M,C,map[][],input[],max;
+	static int N,M,C,map[][],input[],max, revsumA, revsumB;
 	public static void main(String[] args) throws Exception {
 //		System.setIn(new FileInputStream("res/swea_2115_test.txt"));
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,19 +21,17 @@ public class swea_2115_test {
 			max = Integer.MIN_VALUE; // 최대 벌꿀
 			for(int i=0;i<N;++i) {
 				st = new StringTokenizer(br.readLine()," ");
-				for(int j=0;j<N;++j) {
-					map[i][j] = stoi(st.nextToken());
-				}
+				for(int j=0;j<N;++j) map[i][j] = stoi(st.nextToken());
 			}
-			//1.가능한 벌통 조합 검색
+			//탐색을 시작한다.
 			searchHoney(0,0);
 			sb.append("#").append(tc).append(" ").append(max).append('\n');
 		}
 		System.out.println(sb);
 	}
 	static void searchHoney(int start, int cnt) {
-		if(cnt == 2) { // 개수 만큼 다 골랐다면 ?
-			// 겹치면 리턴해준다.(고른숫자에서 길이만큼했을때)
+		if(cnt == 2) { // 개수 만큼 다 골랐다면 ?(일꾼이 두명임)
+			// 겹치면 리턴해준다.input[1]이 input[0]~input[0]+M-1과 겹치면 안된다.
 			if(input[0]<input[1] && input[1]<input[0]+M) return;
 			// 행이 다르면 가로로 연속된게 아니므로 리턴해준다.(시작과끝이 다른행이면됌)
 			if(input[0]/N != (input[0]+(M-1))/N) return; // 벌통 A
@@ -42,7 +40,7 @@ public class swea_2115_test {
 			max = Math.max(max, getRevenu(input[0], input[1]));
 			return;
 		}
-		for(int i=start;i<N*N;++i) { // 0-15까지의 배열인덱스를 2*M만큼 뽑는다.
+		for(int i=start;i<N*N;++i) { // 0-15까지의 배열인덱스를 2만큼 뽑는다.
 			input[cnt] = i;
 			searchHoney(i+1,cnt+1);
 		}
@@ -61,12 +59,9 @@ public class swea_2115_test {
 		int revenu = revsumA + revsumB;//전체 수익을 더해주고
 		return revenu; // 반환해준다.
 	}
-	
-	static int revsumA =0;
-	static int revsumB =0;
 	static void check(int type, int start, int n, int R, int cnt, int sum, int rev) {
-		if(cnt == R) {
-			if(sum <= C) {
+		if(cnt == R) { // 1개...2..R개 뽑아서 만들수 있는 최대이익을 만들어낸다.
+			if(sum <= C) { // 수용량 범위 안이면  이익을 갱신한다.
 				if(type == 0) revsumA= Math.max(revsumA, rev);
 				else revsumB = Math.max(revsumB, rev);
 			}
