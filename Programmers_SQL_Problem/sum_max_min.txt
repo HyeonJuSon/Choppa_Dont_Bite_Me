@@ -1,0 +1,30 @@
+-- Question 01
+-- 코드를 입력하세요
+SELECT DATETIME 
+FROM ANIMAL_INS
+ORDER BY DATETIME desc
+LIMIT 1;
+
+-- Question 02
+-- 코드를 입력하세요
+SELECT DATETIME
+FROM ANIMAL_INS
+ORDER BY DATETIME
+LIMIT 1;
+
+-- Question 03
+-- 코드를 입력하세요
+SELECT COUNT(*)
+FROM ANIMAL_INS;
+
+-- Question 04
+-- 코드를 입력하세요
+SELECT COUNT(distinct NAME)
+FROM ANIMAL_INS
+WHERE NAME IS NOT NULL;
+
+-- Question 05
+-- 코드를 입력하세요
+SELECT distinct ANIMAL_TYPE,COUNT(ANIMAL_TYPE) OVER(PARTITION BY ANIMAL_TYPE) count
+FROM ANIMAL_INS
+
