@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Main_bj_1244_스위치켜고끄기_구미_4_손현주 {
+public class Main_bj_1244{
 
 	public static void main(String[] args) throws Exception {
 		System.setIn(new FileInputStream("res/Input_bj_1244.txt"));
