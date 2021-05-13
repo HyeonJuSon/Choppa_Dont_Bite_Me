@@ -9,8 +9,8 @@ public class bj_1043_G4 {
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine()," ");
-		 N = Integer.parseInt(st.nextToken());
-		 M = Integer.parseInt(st.nextToken());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
 		st = new StringTokenizer(br.readLine()," ");
 		int t = Integer.parseInt(st.nextToken()); // 진실을 아는 사람의 수
 		truth = new boolean[N+1];
@@ -33,9 +33,7 @@ public class bj_1043_G4 {
 			if(truth[i]) dfs(i); // 진실을 알고있으면 나랑 연결된 애들한테 알려준다.
 		}
 		int cnt =0;
-		for(int i=0;i<M;++i) {
-			if(!truth[party[i][0]])cnt++;
-		}
+		for(int i=0;i<M;++i) if(!truth[party[i][0]])cnt++;
 		System.out.println(cnt);
 	}
 		
