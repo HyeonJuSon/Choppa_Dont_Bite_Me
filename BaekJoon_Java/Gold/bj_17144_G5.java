@@ -6,7 +6,6 @@ import java.util.*;
 public class bj_17144_G5 {
 	static class Pos {
 		int x, y, w;
-
 		public Pos(int x, int y, int w) {
 			this.x = x;
 			this.y = y;
