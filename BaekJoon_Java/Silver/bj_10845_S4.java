@@ -4,83 +4,33 @@ import java.io.*;
 import java.util.*;
 
 public class bj_10845_S4 {
-	static class Node {
-		int val;
-		Node next;
-
-		Node(int val) {
-			this.val = val;
-		}
-	}
-
-	static Node head = null;
-	static int count = 0;
-
-	static void push(int val) {
-		Node newNode = new Node(val);
-		if (head == null) {
-			head = newNode;
-		} else {
-			Node tail = head;
-			while (tail.next != null)
-				tail = tail.next;
-			tail.next = newNode;
-		}
-		++count;
-	}
-
-	static void pop() {
-		int val = head == null ? -1 : head.val;
-		if (head != null) {
-			if (head.next != null) {
-				head = head.next;
-			} else
-				head = null;
-			--count;
-		}
-		System.out.println(val);
-	}
-
-	static void isEmpty() {
-		System.out.println(count == 0 ? 1 : 0);
-	}
-
-	static void front() {
-		System.out.println(head == null ? -1 : head.val);
-	}
-
-	static void back() {
-		Node tail = head;
-		while (tail.next != null)
-			tail = tail.next;
-		System.out.println(tail == null ? -1 : tail.val);
-	}
-
+	
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int N = Integer.parseInt(br.readLine());
+		Deque<Integer> dq = new ArrayDeque<>();
 		for (int i = 0; i < N; ++i) {
 			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 			String order = st.nextToken();
 			switch (order) {
 			case "push":
 				int val = Integer.parseInt(st.nextToken());
-				push(val);
+				dq.add(val);
 				break;
 			case "pop":
-				pop();
+				System.out.println(dq.isEmpty()?-1:dq.pop());
 				break;
 			case "size":
-				System.out.println(count);
+				System.out.println(dq.size());
 				break;
 			case "empty":
-				isEmpty();
+				System.out.println(dq.isEmpty()?1:0);
 				break;
 			case "front":
-				front();
+				System.out.println(dq.isEmpty()?-1:dq.peekFirst());
 				break;
 			case "back":
-				back();
+				System.out.println(dq.isEmpty()?-1:dq.peekLast());
 				break;
 			}
 		}
