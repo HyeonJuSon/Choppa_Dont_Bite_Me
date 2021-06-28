@@ -30,12 +30,14 @@ public class prg_프린터 {
 
 		int answer = 0;
 		while (true) {
-			if (readyQueue.peek().priority == priorityQueue.peek()) { // 나보다 더 큰 우선순위가 있으면
+			if (readyQueue.peek().priority == priorityQueue.peek()) { // 나랑 같은 우선순위면
 				++answer;// 카운팅
-				priorityQueue.poll();// 하나뽑아주고
+				priorityQueue.poll();// 일단 하나뽑아주고
 				if (readyQueue.peek().index == location) break; // 찾는 인덱스라면 그만하고 아니면 계속 ㄱㄱ
-			}else readyQueue.offer(readyQueue.peek());
-			readyQueue.poll();
+			}
+			else // 우선순위가 다르면 
+				readyQueue.offer(new Pair(readyQueue.peek().priority, readyQueue.peek().index));//맨뒤로 추가
+			readyQueue.poll();//내차례 끝났으니까 뽑아준다.
 		}
 
 		return answer;
