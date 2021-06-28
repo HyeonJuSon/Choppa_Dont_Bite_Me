@@ -30,7 +30,7 @@ public class prg_프린터 {
 
 		int answer = 0;
 		while (true) {
-			if (readyQueue.peek().priority == priorityQueue.peek()) { // 나랑 같은 우선순위면
+			if (readyQueue.peek().priority >= priorityQueue.peek()) { // 나랑 같은 우선순위면
 				++answer;// 카운팅
 				priorityQueue.poll();// 일단 하나뽑아주고
 				if (readyQueue.peek().index == location) break; // 찾는 인덱스라면 그만하고 아니면 계속 ㄱㄱ
