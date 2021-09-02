@@ -5,133 +5,89 @@ import java.util.*;
 
 public class bj_3190_G5 {
 
-	static class Pos {
-		int ox, oy;
-		int nx, ny;
-
-		Pos(int ox, int oy, int nx, int ny) {
-			this.ox = ox;
-			this.oy = oy;
-			this.nx = nx;
-			this.ny = ny;
-		}
-	}
-
 	static class Order {
 		int sec;
-		char dir;
+		String dir;
 
-		public Order(int sec, char dir) {
+		Order(int sec, String dir) {
 			this.sec = sec;
 			this.dir = dir;
 		}
 	}
 
-	static final int empty = 0, apple = 1;
-	static int N, K, L, map[][];
-	static char dir;
+	static int N, map[][];
+	static final int blank = 0, wall = 1, apple = 2;
+	static Queue<Order> orders = new LinkedList<>();
+	static Deque<int[]> snakes = new LinkedList<>();
+	static int[][] dir = { { 0, 1, 0, -1 }, { 1, 0, -1, 0 } };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = null;
-		N = Integer.parseInt(br.readLine());
+		N = stoi(br.readLine());
 		map = new int[N][N];
-		K = Integer.parseInt(br.readLine());
-		for (int i = 0; i < K; ++i) {
+		int appleCount = stoi(br.readLine());
+		for (int i = 0; i < appleCount; ++i) {// apple 위치를 입력받는다.
 			st = new StringTokenizer(br.readLine(), " ");
-			map[Integer.parseInt(st.nextToken()) - 1][Integer.parseInt(st.nextToken()) - 1] = apple;
+			map[stoi(st.nextToken()) - 1][stoi(st.nextToken()) - 1] = apple;
 		}
-		L = Integer.parseInt(br.readLine());// 방향 회전 횟수
-		Queue<Order> orders = new LinkedList<>();
-		for (int i = 0; i < L; ++i) {
+		int orderCount = stoi(br.readLine());
+		for (int i = 0; i < orderCount; ++i) {
 			st = new StringTokenizer(br.readLine(), " ");
-			int sec = Integer.parseInt(st.nextToken());
-			char dir = st.nextToken().charAt(0);
-			orders.offer(new Order(sec, dir));
+			orders.offer(new Order(stoi(st.nextToken()), st.nextToken()));
 		}
-		ArrayList<Pos> snake = new ArrayList<>();
-		snake.add(new Pos(0, 0, 0, 0));// 0,0에서 출발한다.
-		int head = 0; // head
-		int sec = 0;
-		dir = 'R';
-		boolean isGameOver = false;
-		while (true) {
-			if (!orders.isEmpty() && sec == orders.peek().sec) {
-				dir = orders.poll().dir;
-			}
-			int hx = snake.get(head).nx;
-			int hy = snake.get(head).ny;
-			int beforeX, beforeY;
-			switch (dir) {
-			case 'U':
-				if (isBoundary(hx - 1, hy)) { // 상
-					if (map[hx - 1][hy] == apple) {// 사과가 있는지?
-						++head; // 머리를 사과위치로옮겨주고
-						snake.add(new Pos(hx,hy,hx - 1, hy));// 새로운 머리를 추가해준다.
-					} else {
-						snake.get(head).nx = snake.get(head).ox-1 ;
-						
-						for (int i = head - 1; i >= 0; --i) { // 전체 1칸이동
-							snake.get(i).nx = snake.get(i+1).ox;//내부모의이전위치
-							snake.get(i).ny = snake.get(i+1).oy;
-						}
-					}
-				} else
-					isGameOver = true;
-				break;
-			case 'D':
-				if (isBoundary(hx + 1, hy)) { // 하
-					if (map[hx + 1][hy] == apple) {// 사과가 있는지?
-						++head;
-						snake.add(new Pos(hx + 1, hy));
-					} else {
-						for (int i = 0; i < snake.size(); ++i) { // 전체 1칸이동
-							++snake.get(i).x;
-						}
-					}
-				} else
-					isGameOver = true;
-				break;
-			case 'L':
-				if (isBoundary(hx, hy - 1)) {// 좌
-					if (map[hx][hy - 1] == apple) {// 사과가 있는지?
-						++head;
-						snake.add(new Pos(hx, hy - 1));
-					} else {
-						for (int i = 0; i < snake.size(); ++i) { // 전체 1칸이동
-							--snake.get(i).y;
-						}
-					}
-				} else
-					isGameOver = true;
-				break;
-			case 'R':
-				if (isBoundary(hx, hy + 1)) {// 우
-					if (map[hx][hy + 1] == apple) {// 사과가 있는지?
-						++head;
-						snake.add(new Pos(hx, hy + 1));
-					} else {
-						for (int i = 0; i < snake.size(); ++i) { // 전체 1칸이동
-							++snake.get(i).y;
-						}
-					}
-				} else
-					isGameOver = true;
-				break;
-			}
-			if (isGameOver) {
-				System.out.println(sec + 1);
-				break;
-			}
-			++sec;
-			// 방향별로 이동 위치에 사과가 있는지?
-			// 있다면 사과위치를 head로해준다.
-			// 없다면 사과위치로 이동한다.
-		}
+		System.out.println(process());
 	}
 
+	static int process() {
+		snakes.offer(new int[] { 0, 0 });// 뱀의 첫 위치.
+		int time = 0;// 현재 시간
+		int snakeDir = 0;// R 0 D 1 L 2 R 3
+		boolean isGameOver = false;
+		while (true) { // 게임이 끝날때까지.
+			++time;
+			int[] newHead = {snakes.getLast()[0] + dir[0][snakeDir], snakes.getLast()[1] + dir[1][snakeDir]};
+			if (!isBoundary(newHead[0], newHead[1]) || isCrashBody(newHead)) {//새로이동할 위치가 벽이면 게임오버.
+				isGameOver = true;
+				break;
+			}
+			snakes.offer(newHead); // 괜찮으면 넣어준다.
+			// 이동할 위치가 사과가 있는지 없는지 여부.
+			if (isApple(snakes.getLast()[0], snakes.getLast()[1])) {
+				map[snakes.getLast()[0]][snakes.getLast()[1]] = blank; // 사과를 비운다.
+			} else { // 사과가 없으면 꼬리를 자른다.
+				snakes.pollFirst();
+			}
+			
+			// 회전
+			if (!orders.isEmpty() && time == orders.peek().sec) { // 명령을 수행할 수 있는 초가 지났다면
+				String newDir = orders.poll().dir; // 새로운 방향을 입력받는다.
+				snakeDir = newDir.equals("D") ? snakeDir + 1 : snakeDir - 1;
+				snakeDir = snakeDir < 0 ? 3 : (snakeDir > 3 ? 0 : snakeDir); // 값 보정
+			}
+
+			if (isGameOver) break;
+		}
+
+		return time;
+	}
+
+	static boolean isCrashBody(int[] head) {
+		for(int[] now : snakes) {
+			if(now[0] == head[0] && now[1]==head[1]) return true;
+		}
+		return false;
+	}
+	
 	static boolean isBoundary(int x, int y) {
 		return 0 <= x && x < N && 0 <= y && y < N;
 	}
 
+	static boolean isApple(int x, int y) {
+		return map[x][y] == apple;
+	}
+
+	static int stoi(String s) {
+		return Integer.parseInt(s);
+	}
 }
