@@ -5,10 +5,23 @@ import java.util.*;
 
 public class bj_21611_G2 {
 
+	static class Node {
+		int x, y, num;
+
+		Node(int x, int y, int num) {
+			this.x = x;
+			this.y = y;
+			this.num = num;
+		}
+	}
+
 	static int N, M, map[][], D, S;
-	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } }; // 구슬 파편 던질 때 사용
-	static int[][] moveDir = { { 0, 1, 0, -1 }, { 1, 0, -1, 0 } };// 0,0에서부터 들어감. 우 하 좌 상
+	static Node[] beads;
 	static int[] bombCnt = new int[3];
+	static int[][] moveDir = { { 0, 1, 0, -1 }, { -1, 0, 1, 0 } };// 좌 하 우 상
+	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } }; // 구슬 파편 던질 때 사용
+	static int[] shark;
+
 	public static void main(String[] args) throws Exception {
 		System.setIn(new FileInputStream("res/input.txt"));
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -22,185 +35,148 @@ public class bj_21611_G2 {
 				map[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		st = new StringTokenizer(br.readLine(), " ");
-		D = Integer.parseInt(st.nextToken()) - 1; // 0 1 2 3 상 하 좌 우
-		S = Integer.parseInt(st.nextToken());
-		System.out.println(process());
-	}
-
-	static int process() {
-		int answer = -1; // 반환할 답의 위치
-		// M번 반복한다.
-		for (int i = 0; i < M; ++i) {
-			int[] startPos = { N / 2, N / 2 }; // 상어의 시작 위치
-			map[startPos[0]][startPos[1]] = -1; // 상어 위치 표시
-			int destroyCnt = 0; // 파괴된 개수
-			// d 방향으로 거리가 s이하인 칸의 구슬을 모두 파괴한다.
-			for (int s = 1; s <= S; ++s) {
-				int nx = (dir[0][D] * s) + startPos[0];
-				int ny = (dir[1][D] * s) + startPos[1];
-				if (isBoundary(nx, ny)) {
-					map[nx][ny] = 0;
-					++destroyCnt;
-				}
-			}
-			
-			for(int dc = 0 ; dc < destroyCnt;++dc) { // 파괴된 개수만큼해야한다.
-				move(); // 빈 칸이 생겼으므로 이동시킨다.
-			}
-			// 더 이상 구슬 폭발이 발생하지 않을 때 까지 반복한다.
-			// 구슬 폭발 : 4개 이상의 연속하는 구슬 -> 1,2,3번 몇개 폭발하는지 카운트 필요
-			for(int dc = 0; dc < 1; ++dc) {
-				int len = N; // N,N-1,N-1,N-2,N-2,...,1,1
-				int cnt = 0; // 두 번씩 진행된다.
-				int beforeNum = -1; // 직전 번호
-				int contCnt = 0; // 연속된 개수
-				int sum = 0; // 전체 개수
-				boolean isNoBomb = true;
-				boolean bombFlag = false;//폭발 플래그
-				boolean isFirst = true;
-				Stack<int[]> posHistory = new Stack<>();
-				if (map[0][0] != 0) {
-					posHistory.add(new int[] { 0, 0 });
-					beforeNum = map[0][0];
-					++contCnt;
-				}
-				boolean isBreak = false;
-				int[] startHistory = new int[]{0,0};
-				while (true) { // 0을 찾으면 바로 끝
-					for (int d = 0; d < 4; ++d) {
-						for (int l = len; l > 0; --l) {
-							int nx = startHistory[0] + moveDir[0][d];
-							int ny = startHistory[1] + moveDir[1][d];
-							if(nx == N/2 && ny==N/2) {
-								isBreak = true;
-								break;
-							}
-							if (isBoundary(nx, ny)) {
-								if (map[nx][ny] != 0) {
-									posHistory.add(new int[] { nx, ny });
-									if(map[startHistory[0]][startHistory[1]] == map[nx][ny]) { // 직전과 같은 번호면 
-										beforeNum=map[startHistory[0]][startHistory[1]];
-										++contCnt;
-										if(contCnt >=4) { // 4개이상이면
-											bombFlag = true; // 플래그를 추가해준다.
-										}
-									}else { // 다른 번호면
-										if(contCnt >= 4 && bombFlag) { // 그만한다. 터뜨려야함.
-											posHistory.pop();//하나빼준다.
-											bomb(posHistory,contCnt);
-											isNoBomb = false;
-											sum += contCnt;
-											posHistory.clear();
-											bombFlag=false;
-										}
-										beforeNum = map[nx][ny];
-										contCnt = 1;
-									}
-								}
-								else if (map[nx][ny] == 0 && !posHistory.isEmpty()) {
-									posHistory.add(new int[] { nx, ny });
-									isBreak = true;
-									break;
-								}
-								startHistory[0] = nx;
-								startHistory[1] = ny;
-							}
-						}
-						if (isFirst || ++cnt >= 2) {
-							isFirst = false;
-							cnt = 0;
-							--len;
-						}
-						if (isBreak)
-							break;
-					}
-					if (isBreak)
-						break;
-				}
-				for(int m=0;m<sum;++m) {
-					move();
-					print();
-					System.out.println();
-				}
-				if(!isNoBomb) --dc;
-			}
-			print();
-			// 구슬 변화 : 1개의 그룹(연속(=같은번호로) 하는구슬)이 A (구슬개수) B(구슬번호)로 안에서부터채워진다.
-			// 범위 밖으로나가면 사라진다.
+		shark = new int[] { N / 2, N / 2 };// 상어의 위치를 저장.
+		initBeads(); // 구슬들을 담을 객체 배열 초기화
+		for (int i = 0; i < M; ++i) { // M번 반복한다.
+			st = new StringTokenizer(br.readLine(), " ");
+			D = Integer.parseInt(st.nextToken()) - 1; // 0 1 2 3 상 하 좌 우
+			S = Integer.parseInt(st.nextToken());
+			magic(); // 1. 마법
+			explosion(); // 2. 폭발
+			change(); // 3. 변화
 		}
-
-		return answer;
+		System.out.println(1 * bombCnt[0] + 2 * bombCnt[1] + 3 * bombCnt[2]);
 	}
-	
-	static void move() {
-		int len = N; // N,N-1,N-1,N-2,N-2,...,1,1
-		int cnt = 0; // 두 번씩 진행된다.
-		boolean isFirst = true;
-		Stack<int[]> posHistory = new Stack<>();
-		if (map[0][0] != 0)
-			posHistory.add(new int[] { 0, 0 });
+
+	static void initBeads() {
+		beads = new Node[N * N - 1]; // 상어위치부터 꼬리로 쭈욱
+		int[] pos = new int[] { shark[0], shark[1] }; // 시작 위치
+		int beadsCnt = 0;
+		int len = 1; // 1,1,2,2,...,N
+		int lenCnt = 0; // len을 늘려줄 카운트
 		boolean isBreak = false;
-		int[] startHistory = new int[]{0,0};
-		while (true) { // 0을 찾으면 바로 끝
-			for (int d = 0; d < 4; ++d) {
-				for (int l = len; l > 0; --l) {
-					int nx = startHistory[0] + moveDir[0][d];
-					int ny = startHistory[1] + moveDir[1][d];
-					if (isBoundary(nx, ny)) {
-						if (map[nx][ny] != 0)
-							posHistory.add(new int[] { nx, ny });
-						else if (map[nx][ny] == 0 && !posHistory.isEmpty()) {
-							posHistory.add(new int[] { nx, ny });
-							isBreak = true;
-							break;
-						}
-						startHistory[0] = nx;
-						startHistory[1] = ny;
-					}
-				}
-				if (isFirst || ++cnt >= 2) {
-					isFirst = false;
-					cnt = 0;
-					--len;
-				}
-				if (isBreak)
+		int d = 0;// 방향
+		while (!isBreak) {
+			for (int l = 0; l < len; ++l) {
+				pos[0] += moveDir[0][d];
+				pos[1] += moveDir[1][d];
+				beads[beadsCnt++] = new Node(pos[0], pos[1], map[pos[0]][pos[1]]);
+				if (pos[0] == 0 && pos[1] == 0) {
+					isBreak = true;
 					break;
+				}
 			}
-			if (isBreak)
-				break;
-		}
-		int[] zero = posHistory.pop();// 맨 위에 좌표로 한칸씩 당겨준다.
-		while (!posHistory.isEmpty()) {
-			// 담아둔 걸 다 앞으로 당긴다.
-			int[] pop = posHistory.pop();
-			map[zero[0]][zero[1]] = map[pop[0]][pop[1]];
-			map[pop[0]][pop[1]] = 0;
-			zero = pop;
-		}
-	}
-	
-	static void bomb(Stack<int[]> posHistory, int contCnt) {
-		int[] zero = null;
-		for(int z=0;z<contCnt;++z) {
-			zero = posHistory.pop();
-			bombCnt[map[zero[0]][zero[1]]-1]++;
-			map[zero[0]][zero[1]]=0; // 폭발시킨다.
-			
-		}
-	}
-	
-	static void print() {
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < N; ++j) {
-				System.out.printf("%3d", map[i][j]);
+			if (++lenCnt >= 2) {
+				++len;
+				lenCnt = 0;
 			}
-			System.out.println();
+			if (++d >= 4)
+				d = 0;
 		}
 	}
 
-	// 범위 안에 있는 좌표인지 여부를 반환한
-	static boolean isBoundary(int x, int y) {
-		return 0 <= x && x < N && 0 <= y && y < N;
+	static void magic() {
+		int[] pos = new int[] { shark[0], shark[1] };
+		for (int s = 0; s < S; ++s) { // s 길이 만큼 파괴시켜야 한다.
+			pos[0] += dir[0][D];
+			pos[1] += dir[1][D];
+			if (isBoundary(pos)) { // 범위 안에 있다면
+				map[pos[0]][pos[1]] = 0; // 맵에서 구슬을 파괴한다.
+				for (int bead = 0; bead < beads.length; ++bead) {
+					Node cur = beads[bead];
+					if (cur.x == pos[0] && cur.y == pos[1]) { // beads에서 해당 구슬삭제
+						beads[bead] = new Node(pos[0], pos[1], 0);
+						break;
+					}
+				}
+			}
+		}
+		move(); // 0이 된 곳을 채워준다.
+	}
+
+	static void explosion() {
+		boolean isBreak = false;
+		while (!isBreak) { // 더 이상 폭발할 게 없을 때 까지 반복한다.
+			isBreak = true;
+			for (int i = 0; i < beads.length -1; ++i) {
+				int cnt = 1; // 같은 숫자 개수 카운팅
+				if (beads[i].num != 0) {
+					// 0이 아니고 다음거랑 같으면
+					for (int j = i + 1; j < beads.length; ++j) {
+						if (beads[i].num == beads[j].num)
+							++cnt;
+						else
+							break;
+					}
+					if (cnt >= 4) { // 4개 이상 연속되면
+						isBreak = false; // 그만두고
+						bombCnt[beads[i].num-1] += cnt;// 카운트를 더해준다.
+						for (int j = i; j < i + cnt; ++j) {
+							beads[j].num = 0; // 폭발 시킨다.
+						}
+					}
+				}
+			}
+			move(); // 폭발 후 생긴 0을 채워준다.
+		}
+	}
+
+	static void change() {
+		Queue<int[]> q = new LinkedList<int[]>();
+		for (int i = 0; i < beads.length - 1; ++i) {
+			if (beads[i].num == 0)
+				break;
+			int cnt = 1; // 개수 세기
+			for (int j = i + 1; j < beads.length; ++j) {
+				if (beads[i].num == beads[j].num)
+					++cnt;
+				else {
+					q.offer(new int[] { cnt, beads[i].num });// 변화를 넣어준다
+					i += cnt-1;// i의 위치를 옮겨준다.
+					break;
+				}
+			}
+		}
+		int cnt = 0;
+		while(!q.isEmpty()) {
+			if(cnt >= N*N-1) break; // 범위 벗어나면 그만.
+			int[] now = q.poll();
+			beads[cnt++].num = now[0];
+			beads[cnt++].num = now[1];
+		}
+	}
+
+	static void move() {
+		int maxLen = N * N - 1;
+		for (int i = 0; i < maxLen; ++i) {
+			int cnt = 0;// 0이 연속될 수도있기 때문에 카운트
+			if (beads[i].num == 0) {
+				int idx = i;
+				while (idx < maxLen && beads[idx++].num == 0) {
+					++cnt; // 연속된 0의 개수를 센다.
+				}
+				for (int j = i; j < i + cnt; ++j) {
+					if (j + cnt >= maxLen)
+						break; // 범위 벗어나면 그만
+					beads[j].num = beads[j + cnt].num;// 당겨오고
+					beads[j + cnt].num = 0; // 0으로 바꿔준다.
+				}
+			}
+		}
+	}
+
+	// 영역안에 있는지 여부 검사
+	static boolean isBoundary(int[] pos) {
+		return 0 <= pos[0] && pos[0] < N && 0 <= pos[1] && pos[1] < N;
+	}
+
+	/* test print */
+	static void print() {
+		System.out.println("====================================================");
+		for (int i = 0; i < beads.length; ++i) {
+			System.out.print(beads[i].num);
+			System.out.print(i % 7 == 0 ? "\n" : " ");
+		}
+		System.out.println();
 	}
 }
