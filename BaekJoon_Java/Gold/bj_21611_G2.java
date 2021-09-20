@@ -49,7 +49,7 @@ public class bj_21611_G2 {
 	}
 
 	static void initBeads() {
-		beads = new Node[N * N - 1]; // 상어위치부터 꼬리로 쭈욱
+		beads = new Node[N * N - 1]; // 상어위치는 제외한 개수만큼
 		int[] pos = new int[] { shark[0], shark[1] }; // 시작 위치
 		int beadsCnt = 0;
 		int len = 1; // 1,1,2,2,...,N
@@ -103,10 +103,8 @@ public class bj_21611_G2 {
 				if (beads[i].num != 0) {
 					// 0이 아니고 다음거랑 같으면
 					for (int j = i + 1; j < beads.length; ++j) {
-						if (beads[i].num == beads[j].num)
-							++cnt;
-						else
-							break;
+						if (beads[i].num == beads[j].num) ++cnt;
+						else break;
 					}
 					if (cnt >= 4) { // 4개 이상 연속되면
 						isBreak = false; // 그만두고
@@ -152,12 +150,9 @@ public class bj_21611_G2 {
 			int cnt = 0;// 0이 연속될 수도있기 때문에 카운트
 			if (beads[i].num == 0) {
 				int idx = i;
-				while (idx < maxLen && beads[idx++].num == 0) {
-					++cnt; // 연속된 0의 개수를 센다.
-				}
+				while (idx < maxLen && beads[idx++].num == 0) ++cnt; // 연속된 0의 개수를 센다.
 				for (int j = i; j < i + cnt; ++j) {
-					if (j + cnt >= maxLen)
-						break; // 범위 벗어나면 그만
+					if (j + cnt >= maxLen) break; // 범위 벗어나면 그만
 					beads[j].num = beads[j + cnt].num;// 당겨오고
 					beads[j + cnt].num = 0; // 0으로 바꿔준다.
 				}
