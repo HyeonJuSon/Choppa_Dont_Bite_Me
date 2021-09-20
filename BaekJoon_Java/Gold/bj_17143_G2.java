@@ -1,9 +1,7 @@
-package gold;
-
 import java.io.*;
 import java.util.*;
 
-public class bj_17143_G2 {
+public class Main {
 	static class Shark {
 		int r, c, s, d, z;
 
@@ -95,5 +93,4 @@ public class bj_17143_G2 {
 		return 0 <= x && x < R && 0 <= y && y < C;
 	}
 
-	
 }
