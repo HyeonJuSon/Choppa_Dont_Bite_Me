@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class bj_17143_G2 {
-	static class Shark implements Comparable<Shark> {
+	static class Shark {
 		int r, c, s, d, z;
 
 		public Shark(int r, int c, int s, int d, int z) {
@@ -14,11 +14,6 @@ public class bj_17143_G2 {
 			this.d = d;
 			this.z = z;
 		}
-
-		@Override
-		public int compareTo(Shark o) {
-			return Integer.compare(o.z, this.z);
-		}
 	}
 
 	static int R, C, M, sum = 0;
@@ -27,6 +22,7 @@ public class bj_17143_G2 {
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		R = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
@@ -45,7 +41,8 @@ public class bj_17143_G2 {
 			kill(kingPos);
 			move();
 		}
-		System.out.println(sum);
+		bw.write(sum+"");
+		bw.flush();
 	}
 
 	static void kill(int kingPos) {
@@ -61,7 +58,8 @@ public class bj_17143_G2 {
 	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, 1, -1 } };// 상 하 우 좌 순서
 
 	static void move() {
-		PriorityQueue<Shark> afterMoves = new PriorityQueue<Shark>();
+//		PriorityQueue<Shark> afterMoves = new PriorityQueue<Shark>();
+		Queue<Shark> afterMoves = new LinkedList<>();
 		for (int i = 0; i < R; ++i) {
 			for (int j = 0; j < C; ++j) {
 				if (map[i][j] != null) { // 상어가 있으면
@@ -70,20 +68,8 @@ public class bj_17143_G2 {
 						now.r += dir[0][now.d];
 						now.c += dir[1][now.d];
 						if (!isBoundary(now.r, now.c)) {
-							switch (now.d) {
-							case 0:
-								now.d = 1;
-								break;
-							case 1:
-								now.d = 0;
-								break;
-							case 2:
-								now.d = 3;
-								break;
-							case 3:
-								now.d = 2;
-								break;
-							}
+							if(now.d <=1) now.d = 1-now.d;
+							else now.d = 5-now.d;
 							now.r += dir[0][now.d]*2;
 							now.c += dir[1][now.d]*2;
 						}
