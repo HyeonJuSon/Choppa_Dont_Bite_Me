@@ -5,20 +5,9 @@ import java.io.*;
 
 public class bj_16234_G5 {
 
-	static class Country {
-		int x, y;
-		int val;
-
-		Country(int x, int y, int val) {
-			this.x = x;
-			this.y = y;
-			this.val = val;
-		}
-	}
-
 	static int N, L, R, map[][];
-	static Queue<Country> q = new LinkedList<>();
-	static boolean[][] isVisited;
+	static boolean isOver, isVisited[][];
+	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -27,35 +16,29 @@ public class bj_16234_G5 {
 		L = Integer.parseInt(st.nextToken());
 		R = Integer.parseInt(st.nextToken());
 		map = new int[N][N];
-		isVisited = new boolean[N][N];
 		for (int i = 0; i < N; ++i) {
 			st = new StringTokenizer(br.readLine(), " ");
 			for (int j = 0; j < N; ++j) {
 				map[i][j] = Integer.parseInt(st.nextToken());
-				q.add(new Country(i, j, map[i][j]));
 			}
 		}
 		System.out.println(process());
 	}
 
-	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
-	static boolean isOver = true;
 
 	static int process() {
 		int answer = 0;
 		while (true) {
+			isOver = true;
+			isVisited = new boolean[N][N];
 			// 인구이동
 			for (int i = 0; i < N; ++i) {
 				for (int j = 0; j < N; ++j) {
-					if (isVisited[i][j])
-						continue;
-					bfs(i, j);
+					if (!isVisited[i][j]) bfs(i, j);
 				}
 			}
 			if (isOver) break;
 			++answer;
-			isOver = true;
-			isVisited = new boolean[N][N];
 		}
 		return answer;
 	}
@@ -66,7 +49,6 @@ public class bj_16234_G5 {
 		bfsQ.add(new int[] { x, y });
 		changes.add(new int[] { x, y });
 		isVisited[x][y] = true;
-
 		int cnt = 1, sum = map[x][y];
 
 		while (!bfsQ.isEmpty()) {
