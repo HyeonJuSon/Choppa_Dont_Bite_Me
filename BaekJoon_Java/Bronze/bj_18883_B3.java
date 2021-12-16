@@ -10,11 +10,15 @@ public class bj_18883_B3 {
 		StringTokenizer st = new StringTokenizer(br.readLine()," ");
 		int N = Integer.parseInt(st.nextToken());
 		int M = Integer.parseInt(st.nextToken());
-		int max = N*M;
-		for(int i=1;i<=max;++i) {
-			System.out.print(i+" ");
-			if(i%M==0) System.out.println();
+		StringBuilder sb= new StringBuilder();
+		for(int i=1;i<=M*N;++i) {
+			if(i%M==0) {
+				sb.append(i).append('\n');
+			}else {
+				sb.append(i).append(" ");
+			}
 		}
+		System.out.println(sb.toString());
 	}	
 
 }
