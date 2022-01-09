@@ -4,9 +4,8 @@ import java.io.*;
 import java.util.*;
 
 public class bj_14620_S2 {
-
 	static int N, value[][], min = Integer.MAX_VALUE;
-
+	static int[][] dir = { { 0, -1, 1, 0, 0 }, { 0, 0, 0, -1, 1 } };
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		N = Integer.parseInt(br.readLine());
@@ -18,15 +17,9 @@ public class bj_14620_S2 {
 				value[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		process();
+		comb(0, new boolean[N * N], new int[3]);
 		System.out.println(min);
 	}
-
-	static void process() {
-		comb(0, new boolean[N * N], new int[3]);
-	}
-
-	static int[][] dir = { { 0, -1, 1, 0, 0 }, { 0, 0, 0, -1, 1 } };
 
 	static void comb(int cnt, boolean[] isVisited, int[] input) {
 		if (cnt == 3) {
@@ -36,10 +29,6 @@ public class bj_14620_S2 {
 			root: for (int i = 0; i < 3; ++i) {
 				int x = input[i] / N;
 				int y = input[i] % N;
-				if (x == 0 || x == N - 1 || y == 0 || y == N - 1) {
-					isPossible = false;
-					break root;
-				}
 				for (int d = 0; d < 5; ++d) {
 					int nx = x + dir[0][d];
 					int ny = y + dir[1][d];
@@ -52,13 +41,13 @@ public class bj_14620_S2 {
 				}
 			}
 			// 최소 비용 계산
-			if (isPossible)
-				min = Math.min(min, val);
+			if (isPossible) min = Math.min(min, val);
 			return;
 		}
 		for (int i = 0; i < N * N; ++i) { // 범위는 테두리 제외 안쪽
-			if (isVisited[i])
-				continue;
+			if (isVisited[i]) continue;
+			int x = i / N, y = i % N;
+			if (x == 0 || x == N - 1 || y == 0 || y == N - 1) continue;
 			isVisited[i] = true;
 			input[cnt] = i;
 			comb(cnt + 1, isVisited, input);
