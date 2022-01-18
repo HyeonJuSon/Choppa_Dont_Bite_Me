@@ -1,6 +1,6 @@
 package Programmers;
 
-public class prg_´Ü¾îº¯È¯_LV3 {
+public class prg_ë‹¨ì–´ë³€í™˜_LV3  {
 	static int answer = 9999;
 
 	static public int solution(String begin, String target, String[] words) {
@@ -9,12 +9,12 @@ public class prg_´Ü¾îº¯È¯_LV3 {
 	}
 
 	static void dfs(String begin, String target, String[] words, boolean[] isVisited, int cnt) {
-		// °¢ ´Ü¾îº°·Î dfs Å½»öÀ» ÇØº»´Ù.
+		// ê° ë‹¨ì–´ë³„ë¡œ dfs íƒìƒ‰ì„ í•´ë³¸ë‹¤.
 		for (int i = 0; i < words.length; ++i) {
 			String now = words[i];
 			if (isVisited[i])
 				continue;
-			int different = 0; // ±ÛÀÚ°¡ ´Ù¸¥ °³¼ö
+			int different = 0;  // ê¸€ìê°€ ë‹¤ë¥¸ ê°œìˆ˜
 			for (int j = 0; j < now.length(); ++j) {
 				if (begin.charAt(j) != now.charAt(j))
 					++different;
