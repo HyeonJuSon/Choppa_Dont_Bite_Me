@@ -1,259 +1,223 @@
-package gold;
-
 import java.io.*;
 import java.util.*;
 
 public class bj_23291_G1 {
 
-	static int N, K, map[];
+	static int N, K;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 		N = Integer.parseInt(st.nextToken());
 		K = Integer.parseInt(st.nextToken());
-		map = new int[N];
+		int[] map = new int[N];
 		st = new StringTokenizer(br.readLine(), " ");
 		for (int i = 0; i < N; ++i)
 			map[i] = Integer.parseInt(st.nextToken());
 		int answer = 0;
 		while (true) {
-			// 최대값 - 최소값이 K이하이면 그만한다.
-			if (getDiff() <= K || answer >=2)
-				break;
-			// 정리 카운트
+			// 물고기 수 차이가 K 이하가 되면 그만둔다.
+			if(getDifference(map)<=K) break;
+			// 횟수 카운팅
 			++answer;
-			System.out.println("현재 횟수 : "+answer+"=============");
-			// 최솟값의 위치를 찾아 +1한다.
-			minValUp();
-//			System.out.println("[LOG 1] : FIRST STEP");
-//			for(int i=0;i<map.length;++i) System.out.print(map[i]+" ");
-//			System.out.println();
-//			System.out.println();
-			// 맨 왼쪽 어항을 오른쪽 위로 올린다.
-			int[][] tmp = new int[2][N - 1];
-			goRightUp(tmp);
-//			System.out.println("[LOG 2] : SECOND STEP");
-//			for(int i=0;i<tmp.length;++i) {
-//				for(int j=0;j<tmp[0].length;++j) {
-//					System.out.print(tmp[i][j]+" ");
-//				}
-//				System.out.println();
-//			}
-//			System.out.println();
-//			// 2개 이상 쌓여있는 것들을 가능할때까지 계속 90도회전시킨다
-			// 물고기의 수를 조절한다
-			int[][] rotMap = rotate90(tmp);
-			
-			rotMap = manageFishCnt(rotMap);
-//			System.out.println("[LOG 3] : THIRD STEP");
-//			for(int i=0;i<rotMap.length;++i) {
-//				for(int j=0;j<rotMap[0].length;++j) {
-//					System.out.print(rotMap[i][j]+" ");
-//				}
-//				System.out.println();
-//			}
-//			System.out.println();
-//			// 일렬로 바꾸어 준다.
-			int[] line = makeOneLine(rotMap);
-			System.out.println("[LOG 4] : FOURTH STEP");
-			for (int i = 0; i < line.length; ++i)
-				System.out.print(line[i] + " ");
-			System.out.println();
-			System.out.println();
-			// 180도 회전
-			map = makeOneLine(manageFishCnt(rotate180(line)));
-			System.out.println("[LOG 5] : FIFTH STEP");
-			for (int i = 0; i < map.length; ++i)
-				System.out.print(map[i] + " ");
-			System.out.println();
+			// 물고기의 수가 가장 적은 어항에 물고기를 한 마리 넣는다.
+			pushFish(map);
+			// 가장 왼쪽에 있는 어항을 그 어항의 오른쪽에 있는 어항의 위에 올려 놓는다.
+			int[][] leftUp = new int[2][map.length - 1];
+			leftToUp(map, leftUp);
+			// 2개 이상 쌓여있는 어항을 모두 공중 부양시킨 다음, 전체를 시계방향으로 90도 회전
+			// 공중 부양시킨 어항 중 가장 오른쪽에 있는 어항의 아래에 바닥에 있는 어항이 있을때까지 반복한다.
+			int[][] rotateMap = rotate90(leftUp);
+			// 모든 인접한 두 어항에 대해서, 물고기 수의 차이를 구한다
+			manage(rotateMap);
+			// 어항을 바닥에 일렬로 놓아야 한다.
+			map = oneLine(rotateMap);
+			// 가운데를 중심으로 왼쪽 N/2개를 공중 부양시켜 전체를 시계 방향으로 180도 회전
+			rotateMap = rotate180(map);
+			// 다시 위에서 한 물고기 조절 작업을 수행하고, 바닥에 일렬로 놓는 작업을 수행
+			manage(rotateMap);
+			map = oneLine(rotateMap);
 		}
 		System.out.println(answer);
 	}
 
-	// 180도 회전
-	static int[][] rotate180(int[] tmp) {
-		int x = 2, y = tmp.length - tmp.length / 2;
-		int[][] one = new int[x][y];
-		// 1번째 180도 회전
-		int idx = tmp.length / 2;
-		boolean isFlag = true;
-		for (int i = 0; i < x; ++i) {
-			for (int j = 0; j < y; ++j) {
-				if (isFlag)
-					one[i][j] = tmp[--idx];
-				else
-					one[i][j] = tmp[idx++];
-			}
-			idx = tmp.length / 2;
-			isFlag = false;
-
-		}
-		// 2번째 180도 회전
-		x = one.length * 2;
-		int oddY = one[0].length / 2 +1;
-		int evenY = oddY-1;
-		y = one[0].length%2==0 ? evenY : oddY;
-		int[][] two = new int[x][y];
-		int startX = one.length - 1, startY = one[0].length / 2 - 1;
-		boolean isLeft = true;
-		for (int i = 0; i < x; ++i) {
-			for (int j = 0; j < y; ++j) {
-				if (isLeft) {
-					if (startY >= 0)
-						two[i][j] = one[startX][startY--];
-				} else {
-					two[i][j]=one[i-2][j+one[0].length/2];
-				}
-			}
-			startX--;
-			startY = one[0].length / 2 - 1;
-			if (startX < 0) {
-				isLeft = false;
-			}
-		}
-
-		return two;
-	}
-
-	// 물고기의 수를 조절한다.
-	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
-
-	static int[][] manageFishCnt(int[][] tmp) {
-		int x = tmp.length, y = tmp[0].length;
-		int[][] diff = new int[x][y];
-		for (int i = 0; i < x; ++i) {
-			for (int j = 0; j < y; ++j) {
-				int nowVal = tmp[i][j];
-				if (nowVal == 0)
-					continue;
-				int sum = 0;
-				for (int direction = 0; direction < 4; ++direction) {
-					int nx = i + dir[0][direction];
-					int ny = j + dir[1][direction];
-					if (0 <= nx && nx < x && 0 <= ny && ny < y && tmp[nx][ny] != 0) {
-						int nextVal = tmp[nx][ny];
-						int d = Math.abs(nowVal - nextVal) / 5;
-						if (d > 0) {
-							if (nowVal > nextVal) {
-								sum -= d;
-							} else if (nowVal < nextVal) {
-								sum += d;
-							}
-						}
-					}
-				}
-				diff[i][j] = sum;
-			}
-		}
-		// 갱신한다.
-		for (int i = 0; i < x; ++i) {
-			for (int j = 0; j < y; ++j) {
-				diff[i][j] += tmp[i][j];
-			}
-		}
-		// 결과를 반환한다.
-		return diff;
-	}
-
-	// 최대값과 최소값의 차이를 찾는다.
-	static int getDiff() {
-		int max = Integer.MIN_VALUE, min = Integer.MAX_VALUE;
-		for (int i = 0; i < map.length; ++i) {
-			max = Math.max(max, map[i]);
-			min = Math.min(min, map[i]);
-		}
-		return max - min;
-	}
-
-	// 최솟값의 위치를 찾아 +1 하는 메소드
-	static void minValUp() {
+	// 물고기의 수가 가장 적은 어항에 물고기를 한 마리 넣는다.
+	static void pushFish(int[] map) {
 		int min = Integer.MAX_VALUE;
-		// 1. 최솟값을 찾는다.
 		for (int i = 0; i < map.length; ++i)
 			min = Math.min(min, map[i]);
-		// 2. 최솟값과 동일한 경우 +1 해준다.
 		for (int i = 0; i < map.length; ++i) {
 			if (map[i] == min)
 				++map[i];
 		}
 	}
 
-	// 맨 왼쪽 어항을 위로 올린다.
-	static void goRightUp(int[][] tmp) {
-		tmp[0][0] = map[0];
-		for (int j = 1; j < map.length; ++j)
-			tmp[1][j - 1] = map[j];
+	// 가장 왼쪽에 있는 어항을 그 어항의 오른쪽에 있는 어항의 위에 올려 놓는다.
+	static void leftToUp(int[] map, int[][] leftUp) {
+		leftUp[0][0] = map[0];
+		for (int j = 0; j < leftUp[0].length; ++j)
+			leftUp[1][j] = map[j + 1];
 	}
 
-	// 더이상 회전이 안 될때 까지 회전시킨다.
-	static int[][] rotate90(int[][] tmp) {
-		int[][] rotTmp = tmp;
+	// 2개 이상 쌓여있는 어항을 모두 공중 부양시킨 다음, 전체를 시계방향으로 90도 회전
+	static int[][] rotate90(int[][] leftUp) {
+		int[][] answer = leftUp;
 		while (true) {
-			// 1. 몇 번째 열까지 2행이상인지 찾는다.
-			int targetCol = 0;
-			for (int j = 0; j < rotTmp[0].length; ++j) {
-				if (rotTmp[tmp.length-1][j] != 0)
-					++targetCol;
+			int targetY = 0;
+			// 2개 이상인 열의 마지막 위치를 찾는다.
+			for (int j = 0; j < answer[0].length; ++j) {
+				if (answer[answer.length - 2][j] != 0)
+					++targetY;
+				else
+					break;
 			}
-			int[] oldXY = { rotTmp.length, rotTmp[0].length }; // 기존의 행, 열 길이
-			int[] newXY = { targetCol + 1, rotTmp[0].length - targetCol }; // 새로운 행,열 길이
-			int[][] now = new int[newXY[0]][newXY[1]]; // 새로 넣을 배열 
-			boolean isLeft = true;
-			// 2. 가능하면 돌리고
-			if (oldXY[0] <= newXY[1]) {//기존 행길이가 맨 아랫줄에 남을 열길이보다 길면 안됨.
-				int x = oldXY[0] - 1; //맨아랫쪽
-				int y = 0; // 맨 왼쪽
-				for (int i = 0; i < newXY[0]; ++i) {
-					for (int j = 0; j < newXY[1]; ++j) {
-						if (isLeft) {
-							if (x >= 0) {
-								now[i][j] = rotTmp[x--][y];
-							}
-						} else {
-							now[i][j] = rotTmp[oldXY[0] - 1][j + targetCol];
-						}
-					}
-					x = 1;
-					if (++y >= targetCol) {
-						isLeft = false;
+			if (answer.length > answer[0].length - targetY)
+				break;
+			int newX = targetY + 1;
+			int newY = answer[0].length - targetY;
+			int[][] tmp = new int[newX][newY];
+			int startX = answer.length - 1; // 밑에서 위로
+			int startY = 0; //
+			boolean isLeftSide = true;
+			for (int i = 0; i < newX; ++i) {
+				for (int j = 0; j < newY; ++j) {
+					if (isLeftSide) {
+						if (startX >= 0)
+							tmp[i][j] = answer[startX--][startY];
+					} else {
+						tmp[i][j] = answer[startX][startY++];
 					}
 				}
-				rotTmp = now;// 갱신해준다.
-				System.out.println("[LOG 3] : THIRD STEP");
-				for(int i=0;i<rotTmp.length;++i) {
-					for(int j=0;j<rotTmp[0].length;++j) {
-						System.out.print(rotTmp[i][j]+" ");
-					}
-					System.out.println();
+				startX = answer.length - 1;
+				if (isLeftSide && ++startY >= targetY) {
+					isLeftSide = false;
+					startY = targetY;
+					startX = answer.length - 1;
 				}
-				System.out.println();
-			} else
-				break; // 3. 불가능하면 반환한다.
+			}
+			answer = tmp;
 		}
-		return rotTmp;
+		return answer;
 	}
 
-	// 일렬로 만들어준다.
-	static int[] makeOneLine(int[][] tmp) {
-		// 1. 카운트 세기
-		int cnt = 0, x = tmp.length, y = tmp[0].length;
+	// 모든 인접한 두 어항에 대해서, 물고기 수의 차이를 구한다
+	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
+	static void manage(int[][] rotateMap) {
+		int x = rotateMap.length, y = rotateMap[0].length;
+		int[][] val = new int[x][y];
 		for (int i = 0; i < x; ++i) {
 			for (int j = 0; j < y; ++j) {
-				if (tmp[i][j] != 0)
-					++cnt;
-			}
-		}
-		// 2. 일렬로 만들기
-		int[] res = new int[cnt];
-		int idx = 0;
-		for (int j = 0; j < tmp[0].length; ++j) {
-			for (int i = x - 1; i >= 0; --i) {
-				if (tmp[i][j] != 0) {
-					res[idx++] = tmp[i][j];
+				int now = rotateMap[i][j];
+				if (now == 0)
+					continue;
+				for (int d = 0; d < 4; ++d) {
+					int nx = i + dir[0][d];
+					int ny = j + dir[1][d];
+					if (0 <= nx && nx < x && 0 <= ny && ny < y) {
+						if (rotateMap[nx][ny] == 0)
+							continue;
+						int next = rotateMap[nx][ny];
+						int D = Math.abs(now - next) / 5;
+						if (D > 0) {
+							if (now < next) {
+								val[i][j] += D;
+							} else if (now > next) {
+								val[i][j] -= D;
+							}
+						}
+					}
 				}
 			}
 		}
-		return res; // 일렬로 만들어진거를 반환한다.
+		for (int i = 0; i < x; ++i) {
+			for (int j = 0; j < y; ++j) {
+				rotateMap[i][j] += val[i][j];
+			}
+		}
+	}
+
+	// 어항을 바닥에 일렬로 놓아야 한다.
+	static int[] oneLine(int[][] manageMap) {
+		Queue<Integer> line = new LinkedList<>();
+		for (int j = 0; j < manageMap[0].length; ++j) {
+			for (int i = manageMap.length - 1; i >= 0; --i) {
+				if (manageMap[i][j] == 0)
+					break;
+				line.add(manageMap[i][j]);
+			}
+		}
+		int[] answer = new int[line.size()];
+		int idx = 0;
+		while (!line.isEmpty())
+			answer[idx++] = line.poll();
+		return answer;
+	}
+
+	// 가운데를 중심으로 왼쪽 N/2개를 공중 부양시켜 전체를 시계 방향으로 180도 회전
+	static int[][] rotate180(int[] map) {
+		// 첫번째 회전
+		int targetY = map.length / 2;
+		int newX = 2, newY = map.length - targetY;
+		int[][] first = new int[newX][newY];
+		boolean isLeft = true;
+		for (int i = 0; i < newX; ++i) {
+			for (int j = 0; j < newY; ++j) {
+				if (isLeft) {
+					if (targetY >= 0) {
+						first[i][j] = map[--targetY];
+					}
+				} else {
+					first[i][j] = map[targetY++];
+				}
+			}
+			if (targetY <= 0) {
+				isLeft = false;
+				targetY = map.length / 2;
+			}
+		}
+
+		// 두 번째 회전
+		// 왼쪽 영역의 맨 하단 좌측방향 진행
+		int targetX = first.length - 1;
+		targetY = first[0].length / 2 - 1;
+		newX = first.length * 2; // 현 높이의 2배
+		newY = first[0].length - targetY - 1;
+		int[][] second = new int[newX][newY];
+		isLeft = true;
+		for (int i = 0; i < newX; ++i) {
+			for (int j = 0; j < newY; ++j) {
+				if (isLeft) {
+					if (targetY >= 0)
+						second[i][j] = first[targetX][targetY--];
+				} else {
+					if (targetY < first[0].length)
+						second[i][j] = first[targetX][targetY++];
+				}
+			}
+			if (isLeft) {
+				targetY = first[0].length / 2 - 1;
+				if (--targetX < 0) {
+					isLeft = false;
+					targetX = 0;
+					targetY++;
+				}
+				;
+			} else {
+				targetX++;
+				targetY = first[0].length / 2;
+
+			}
+		}
+		return second;
+	}
+	// 물고기 수 차이가 K 이하가 되면 그만둔다.
+	static int getDifference(int[] map) {
+		int max = Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
+		for(int i=0;i<map.length;++i) {
+			max = Math.max(max, map[i]);
+			min = Math.min(min, map[i]);
+		}
+		return max-min;
 	}
 }
