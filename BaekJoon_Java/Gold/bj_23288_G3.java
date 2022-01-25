@@ -4,11 +4,11 @@ import java.io.*;
 import java.util.*;
 
 public class bj_23288_G3 {
-
-	static int N, M, K, map[][], nowDirection;
-	static final int East = 0, West = 1, South = 2, North = 3;
+	static int N, M, K, map[][];
 	static int[][] dice = { { 0, 2, 0 }, { 4, 1, 3 }, { 0, 5, 0 }, { 0, 6, 0 } };
-	static int maxCnt = 0, maxSum = 0;
+	static int[] nowPos = { 0, 0 }; // 현재 주사위의 위치
+	static int nowDir = 0; // 현재 방향, 0,1,2,3 -> 동 남 서 북
+	static int[][] dir = { { 0, 1, 0, -1 }, { 1, 0, -1, 0 } };// 동,남,서,북
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -23,158 +23,110 @@ public class bj_23288_G3 {
 				map[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		nowDirection = East;
 		int answer = 0;
-		// K번 이동한다.
+		// k번 이동 시킨다.
 		for (int k = 0; k < K; ++k) {
-			moveDice(0, 0); // 0,0에서 출발
-			answer = maxSum*dice[1][1];
+			// 주사위 이동 방향으로 한 칸
+			moveDice();
+			// 연속으로 이동할 수 있는 칸의 개수
+			answer += getScore(map[nowPos[0]][nowPos[1]]);
 		}
 		System.out.println(answer);
 	}
 
-	// 주사위 이동 메소드
-	static int[][] dir = { { 0, 0, 1, -1 }, { 1, -1, 0, 0 } };// 동,서,남,북
-
-	static class Node {
-		int x, y, d;
-		int cnt;
-		int sum;
-
-		Node(int x, int y, int d, int cnt, int sum) {
-			this.x = x;
-			this.y = y;
-			this.d = d;
-			this.cnt = cnt;
-			this.sum = sum;
-		}
-	}
-
-	static void moveDice(int x, int y) {
-
+	static int getScore(int B) {
+		// 방문 체크용 배열
 		boolean[][] isVisited = new boolean[N][M];
-		isVisited[x][y] = true;
-		Queue<Node> bfs = new LinkedList<>();
-		bfs.offer(new Node(x, y, nowDirection, 0, 0));
-
+		Queue<int[]> bfs = new LinkedList<>();
+		bfs.add(nowPos);
+		isVisited[nowPos[0]][nowPos[1]] = true;
+		int answer = 0;
 		while (!bfs.isEmpty()) {
-			Node current = bfs.poll();
-			if (maxCnt < current.cnt) {
-				maxCnt = current.cnt;
-				maxSum = Math.max(maxSum, current.sum);
-			}
-			int nx = x + dir[0][current.d];
-			int ny = y + dir[1][current.d];
-			if (!isBoundary(nx, ny)) {
-				reverseDirection(current.d);
-				nx = x + dir[0][current.d];
-				ny = y + dir[1][current.d];
-			}
-			if (!isVisited[nx][ny]) {
-				// 주사위 돌리고
-				rotateDice(current.d);
-				// 방문체크하고
-				isVisited[nx][ny] = true;
-				// bfsQ에 담는다
-				bfs.offer(new Node(nx, ny, changeDirection(current.d, map[nx][ny]), current.cnt + 1,
-						current.sum + map[nx][ny]));
+			int[] current = bfs.poll();
+			++answer;
+			for (int d = 0; d < 4; ++d) {
+				int nx = current[0] + dir[0][d];
+				int ny = current[1] + dir[1][d];
+				if (isBoundary(nx, ny) && !isVisited[nx][ny] && map[nx][ny] == B) {
+					isVisited[nx][ny] = true;
+					bfs.offer(new int[] { nx, ny });
+				}
 			}
 		}
+		return answer * B;
 	}
 
-	static int changeDirection(int direction, int B) {
-		int A = dice[1][1];
-		int newDirection = direction;
-		if (A > B) { // 시계방향90도
-			newDirection += 2;
-			if (direction == South || direction == North)
-				newDirection %= 4;
-		} else if (A < B) { // 반시계방향90도
-			newDirection -= 2;
-			if (direction == East || direction == West)
-				newDirection *= -1;
+	static void moveDice() {
+		int nx = nowPos[0] + dir[0][nowDir];
+		int ny = nowPos[1] + dir[1][nowDir];
+		// 이동하는 방향에 칸이 없으면 방향을 전환한다.
+		if (!isBoundary(nx, ny)) {
+			reverseDirection();
+			nx = nowPos[0] + dir[0][nowDir];
+			ny = nowPos[1] + dir[1][nowDir];
 		}
-		return newDirection;
+		// 한 칸 이동 시킨다.
+		nowPos[0] = nx;
+		nowPos[1] = ny;
+
+		changeDice(); // dice 전개도도 바꾸어준다.
+		nowDir = changeDirection(nx, ny); // 이동 후 새로운 방향
 	}
 
 	static boolean isBoundary(int x, int y) {
 		return 0 <= x && x < N && 0 <= y && y < M;
 	}
 
-	static void reverseDirection(int direction) {
-		if (direction <= West)
-			direction = Math.abs(direction - 1);
-		else
-			direction = Math.abs(direction - 5);
+	static int changeDirection(int x, int y) {
+		int A = dice[3][1]; // 주사위 아랫면의 값
+		int B = map[x][y]; // 맵에 적혀있는 값
+		int answer = nowDir; // 현재 방향
+		if (A > B) // 90도 시계방향 동->남->서->북
+			answer = (answer + 1) > 3 ? 0 : answer + 1;
+		else if (A < B) // 90도 반시계방향
+			answer = (answer - 1) < 0 ? 3 : answer - 1;
+		return answer;
 	}
 
-	static void rotateDice(int direction) {
-		switch (direction) {
-		case East:
-			rotateEast();
-			break;
-		case West:
-			rotateWest();
-			break;
-		case South:
-			rotateSouth();
-			break;
-		case North:
-			rotateNorth();
-			break;
-		}
+	static void reverseDirection() {
+		int answer = nowDir;
+		answer = (nowDir == 1) ? 3 : Math.abs(answer - 2);
+		nowDir = answer;
 	}
 
-	static void rotateEast() {
+	static void changeDice() {
 		int[][] tmp = new int[4][3];
-		tmp[0][1] = dice[0][1];
-		tmp[2][1] = dice[2][1];
-		for (int j = 0; j < 2; ++j)
-			tmp[1][j + 1] = dice[1][j];
-		tmp[1][0] = dice[3][1];
-		tmp[3][1] = dice[1][2];
+		if (nowDir == 0 || nowDir == 2) { // 동 or 서
+			tmp[0][1] = dice[0][1];
+			tmp[2][1] = dice[2][1];
+			if (nowDir == 0) {
+				tmp[1][0] = dice[3][1];
+				tmp[3][1] = dice[1][2];
+				for (int i = 1; i < 3; ++i) {
+					tmp[1][i] = dice[1][i - 1];
+				}
+			} else {
+				tmp[1][2] = dice[3][1];
+				tmp[3][1] = dice[1][0];
+				for (int i = 0; i < 2; ++i) {
+					tmp[1][i] = dice[1][i + 1];
+				}
+			}
+		} else { // 남 or 북
+			tmp[1][0] = dice[1][0];
+			tmp[1][2] = dice[1][2];
+			if (nowDir == 1) {
+				tmp[0][1] = dice[3][1];
+				for (int i = 1; i < 4; ++i) {
+					tmp[i][1] = dice[i - 1][1];
+				}
+			} else {
+				tmp[3][1] = dice[0][1];
+				for (int i = 0; i < 3; ++i) {
+					tmp[i][1] = dice[i + 1][1];
+				}
+			}
+		}
 		dice = tmp;
 	}
-
-	static void rotateWest() {
-		int[][] tmp = new int[4][3];
-		tmp[0][1] = dice[0][1];
-		tmp[2][1] = dice[2][1];
-		for (int j = 1; j < 3; ++j)
-			tmp[1][j - 1] = dice[1][j];
-		tmp[1][2] = dice[3][1];
-		tmp[3][1] = dice[1][0];
-		dice = tmp;
-	}
-
-	static void rotateSouth() {
-		int[][] tmp = new int[4][3];
-		// 전개도 왼, 우 는 똑같음
-		for (int i = 0; i < 4; ++i) {
-			tmp[i][0] = dice[i][0];
-			tmp[i][2] = dice[i][2];
-		}
-		// 중앙은 한칸씩 위로간다.
-		for (int i = 1; i < 4; ++i) {
-			tmp[i][1] = dice[i][1];
-		}
-		tmp[3][1] = dice[0][1];
-		dice = tmp; // 갱신
-	}
-
-	static void rotateNorth() {
-		int[][] tmp = new int[4][3];
-		// 전개도 왼, 우 는 똑같음
-		for (int i = 0; i < 4; ++i) {
-			tmp[i][0] = dice[i][0];
-			tmp[i][2] = dice[i][2];
-		}
-		// 중앙은 한칸씩 아래로 간다
-		for (int i = 0; i < 3; ++i) {
-			tmp[i + 1][1] = dice[i][1];
-		}
-		tmp[0][1] = dice[3][1];
-		dice = tmp;
-	}
-
 }
