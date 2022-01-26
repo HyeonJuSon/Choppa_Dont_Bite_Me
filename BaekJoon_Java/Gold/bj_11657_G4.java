@@ -1,4 +1,4 @@
-package gold;
+// Bellman-Ford Algorithm
 
 import java.io.*;
 import java.util.*;
@@ -50,9 +50,7 @@ public class bj_11657_G4 {
 				int u = edge[j].u;
 				int v = edge[j].v;
 				int w = edge[j].weight;
-
-				if (dist[u] == INF)
-					continue;
+				if (dist[u] == INF) continue;
 				if (dist[v] > dist[u] + w) {
 					dist[v] = dist[u]+w;
 					if(i==N) return true; // 음수 순환
