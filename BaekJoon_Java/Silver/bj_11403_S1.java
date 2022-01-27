@@ -1,5 +1,3 @@
-package silver;
-
 import java.io.*;
 import java.util.*;
 
