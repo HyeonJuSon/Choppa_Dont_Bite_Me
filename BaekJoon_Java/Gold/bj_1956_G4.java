@@ -10,8 +10,8 @@ public class bj_1956_G4 {
 		StringTokenizer st = new StringTokenizer(br.readLine()," ");
 		int N = Integer.parseInt(st.nextToken());
 		int T = Integer.parseInt(st.nextToken());
-		long[][] map = new long[N][N];
-		int INF = Integer.MAX_VALUE;
+		int[][] map = new int[N][N];
+		int INF = 987654321;
 		for(int i=0;i<N;++i) Arrays.fill(map[i], INF);
 		for(int i=0;i<T;++i) {
 			st = new StringTokenizer(br.readLine()," ");
@@ -28,11 +28,11 @@ public class bj_1956_G4 {
 				}
 			}
 		}
-		long min = Integer.MAX_VALUE;
+		int min = INF;
 		for(int i=0;i<N;++i) {
-			min = Math.min(min, map[i][i]);
+			min = Math.min(map[i][i], min);
 		}
-		System.out.println(min == Integer.MAX_VALUE ? -1 : min);
+		System.out.println(min == INF ? -1 : min);
 	}
 
 }
