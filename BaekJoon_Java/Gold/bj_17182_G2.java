@@ -1,17 +1,15 @@
-package gold;
-
 import java.io.*;
 import java.util.*;
 
 public class bj_17182_G2 {
 	static int[][] map;
-	static int N, K, answer = Integer.MAX_VALUE;
+	static int N, answer = Integer.MAX_VALUE;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 		N = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken());
+		int K = Integer.parseInt(st.nextToken());
 		map = new int[N][N];
 		for (int i = 0; i < N; ++i) {
 			st = new StringTokenizer(br.readLine(), " ");
