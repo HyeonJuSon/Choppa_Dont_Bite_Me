@@ -1,13 +1,10 @@
-package gold;
-
 import java.io.*;
 import java.util.*;
 
-public class bj_4179_G4 {
+public class Main {
 	static class JH {
 		int x, y;
 		int time;
-
 		JH(int x, int y, int time) {
 			this.x = x;
 			this.y = y;
@@ -19,7 +16,6 @@ public class bj_4179_G4 {
 	static char[][] map;
 	static Queue<int[]> fires = new LinkedList<>();
 	static Queue<JH> jq = new LinkedList<>();
-
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
@@ -70,7 +66,6 @@ public class bj_4179_G4 {
 			int len = jq.size();
 			for (int i = 0; i < len; ++i) {
 				JH current = jq.poll();
-				
 				// 더 탐색 해야하는 경우
 				for (int d = 0; d < 4; ++d) {
 					int nx = current.x + dir[0][d];
