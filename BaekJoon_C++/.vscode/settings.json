@@ -2,6 +2,13 @@
   "files.associations": {
     "iostream": "cpp",
     "ios": "cpp",
-    "xiosbase": "cpp"
+    "xiosbase": "cpp",
+    "xtree": "cpp",
+    "utility": "cpp",
+    "vector": "cpp",
+    "map": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "xstring": "cpp"
   }
 }
