@@ -40,6 +40,7 @@ int main() {
 		if (isflag) target = i + 1;
 	}
 	cout << target;
-	
-	return 0;
+  delete[] arr;
+  delete[] isVisited;
+  return 0;
 }
