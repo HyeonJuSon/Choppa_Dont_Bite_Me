@@ -29,8 +29,6 @@ void find(int a, int z, int k) {
 	}
 }
 
-
-
 int main(void) {
 	int N, M,K;
 	cin >> N >> M >> K;
