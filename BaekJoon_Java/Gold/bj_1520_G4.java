@@ -10,7 +10,6 @@ public class bj_1520_G4 {
 			this.y = y;
 		}
 	}
-
 	static int X, Y, map[][],dp[][];
 	static int[] dx = { -1, 1, 0, 0 };
 	static int[] dy = { 0, 0, -1, 1 };

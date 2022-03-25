@@ -31,9 +31,8 @@ public class bj_14719_G5 {
 					if (start == -1) {
 						start = j;
 					} else {
-						if (cnt == 0) {
-							start = j;
-						} else {
+						if (cnt == 0) start = j;
+						else {
 							answer += cnt;
 							cnt = 0;
 						}

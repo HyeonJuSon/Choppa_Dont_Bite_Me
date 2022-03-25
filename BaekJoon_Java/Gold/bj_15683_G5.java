@@ -6,7 +6,6 @@ import java.util.*;
 public class bj_15683_G5 {
 	static class CCTV {
 		int number, x, y;
-
 		public CCTV(int number, int x, int y) {
 			this.number = number;
 			this.x = x;
@@ -32,7 +31,6 @@ public class bj_15683_G5 {
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
 		int[][] map = new int[N][M];
-
 		int remain = N * M;
 		for (int i = 0; i < N; ++i) {
 			st = new StringTokenizer(br.readLine(), " ");
@@ -45,7 +43,6 @@ public class bj_15683_G5 {
 			}
 		}
 		min = Integer.MAX_VALUE;
-
 		search(0, remain - cctvCnt, map);
 		System.out.println(min);
 	}
@@ -57,13 +54,10 @@ public class bj_15683_G5 {
 			min = Math.min(min, remain);
 			return;
 		}
-
 		int[][] newMap = new int[N][M];//원본에다 수정하면 안되니까 새로만듬
 		copy(newMap, map);
-
 		// 각각의 CCTV를 확인
 		CCTV c = cctvList[idx];
-
 		// 해당 CCTV가 90도씩 회전하면서 감시
 		for (int i = 0; i < cctvDir[c.number].length; ++i) {
 			// 해당 CCTV가 감시할 수 있는 방향으로 감시
@@ -72,7 +66,6 @@ public class bj_15683_G5 {
 				int dir = cctvDir[c.number][i][j];
 				check += observe(c.x, c.y, dir, newMap);
 			}
-			
 			search(idx+1, remain - check, newMap);
 			// 다른 방향으로 확인하기 위해 맵 상태를 되돌린다
 			copy(newMap, map);
@@ -82,11 +75,9 @@ public class bj_15683_G5 {
 	private static int observe(int x, int y, int dir, int[][] map) {
 		// 감시 영역 수
 		int cnt =0;
-		
 		while(true) {
 			x += dx[dir];
 			y += dy[dir];
-			
 			// 범위를 벗어나거나 벽이 있으면
 			if(x < 0 || y < 0 || x >= N || y >= M || map[x][y] == 6) return cnt;
 			if((1<=map[x][y] && map[x][y] <=5) || map[x][y] == -1) continue;
