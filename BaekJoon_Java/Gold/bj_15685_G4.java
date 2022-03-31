@@ -3,88 +3,66 @@ package gold;
 import java.io.*;
 import java.util.*;
 
-// 깔때 내오른쪽에 이미 깔려있으면 안됌(무한로프)
-// 11%에서 틀렸었는데 이게 다리를깔때 다리개수가 0이 아닐때도 추가로 0개깔면 답이되는 경우가 있었음!
 public class bj_15685_G4 {
+
+	static boolean[][] isVisited = new boolean[101][101];
+	static int N;
+	static int[][] dir = { { 0, -1, 0, 1 }, { 1, 0, -1, 0 } }; // 우,상,좌,하
+
+	static ArrayList<Integer> getDirections(int d, int g) {
+		ArrayList<Integer> answer = new ArrayList<>();
+		answer.add(d); // 초기 방향
+		while (g-- > 0) { // 최초 세대까지 돌리고 
+			int start = answer.size() - 1; // 맨마지막(=바로직전세대)부터 회전(거슬러올라가기 때문에 반시계)시킨다.
+			for (int i = start; i >= 0; --i) { 
+				int nd = (answer.get(i) + 1) % 4; // 3 + 1 -> 0
+				answer.add(nd); // 추가
+			}
+		}
+		return answer;
+	}
 	
-	static int N, M, H,map[][],ans = Integer.MAX_VALUE,input[];
+	static void markEdge(int x, int y, ArrayList<Integer> directions) {
+		isVisited[x][y] = true;
+		for(int d : directions) {
+			if(d==0) {
+				isVisited[++x][y]=true;
+			}else if(d==1) {
+				isVisited[x][--y]=true;
+			}else if(d==2) {
+				isVisited[--x][y]=true;
+			}else {
+				isVisited[x][++y]=true;
+			}
+		}
+	}
+	
+	static boolean isSquare(int x, int y) {
+		return isVisited[x][y] && isVisited[x+1][y] && isVisited[x][y+1] && isVisited[x+1][y+1];
+	}
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		H = Integer.parseInt(st.nextToken());
-		if (M == 0) { // 가로선이 없으면 그냥 그상태가 답.
-			System.out.println("0");
-		} else {
-			map = new int[H][N];
-			for (int i = 0; i < M; ++i) {
-				st = new StringTokenizer(br.readLine(), " ");
-				int x = Integer.parseInt(st.nextToken()) - 1;
-				int y = Integer.parseInt(st.nextToken()) - 1;
-				map[x][y] = 1; //우측으로간다
-				map[x][y+1] = -1; // 좌측으로간다.
-			}
-			process();
-			System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
-		}
-	}
-
-	static void process() { // 여기서 과정을 처리하고 값을 반환해준다.
-		for (int i = 0; i < 4; ++i) { // 다리를 0개,1개,2개,3개까지만 깔아본다.(조건)
-			input = new int[i];
-			combi(0, 0, i);
-		}
-	}
-
-	static void combi(int start, int cnt, int R) {
-		
-		if (ans != Integer.MAX_VALUE) return; // ans에 값이 들어가면 그게 답임(증가하면서 다리까는개수늘려서)
-		if (cnt == R) {
-			// 1. 실제로 깐다(가짜 맵에)
-			for (int i = 0; i < R; ++i) {
-				int val = input[i];
-				int x = val / N;
-				int y = val % N;
-				map[x][y] = 1;
-				map[x][y+1]=-1;
-			}
-			// 2. n1번 이 n1로 나가지는 지 확인한다.
-			if (isSuccess()) {
-				ans = Math.min(ans, R); // 갱신한다.
-				return;
-			}
-			// 3. 맵을 원상복구 시킨다.
-			for (int i = 0; i < R; ++i) {
-				int val = input[i];
-				int x = val / N;
-				int y = val % N;
-				map[x][y] = map[x][y+1] = 0;
-			}
-			return;
-		}
-
-		for (int i = start; i < H * N; i++) {// 다리길이가 2
-			if (i % N == N - 1) continue; // 가장 마지막 열은 다리를 깔 수 없음
-			if (map[i / N][i % N]!=0 || map[i/N][(i%N)+1] !=0) continue; // 이미 다리가 깔려있으면 통과
-			input[cnt] = i;
-			combi(i + 1, cnt + 1, R);
-		}
-	}
-
-	private static boolean isSuccess() {
+		N = Integer.parseInt(br.readLine());
+		StringTokenizer st = null;
 		for (int i = 0; i < N; ++i) {
-			int x = 0; // 시작은 다 0번 행
-			int y = i;// i번째 다리
-			while (x < H) {//마지막행까지내려간다.
-				if(map[x][y]!=0) { // 다리가 있으면
-					y+=map[x][y];//이동시켜준다.
-				}
-				x++;
-			}
-			if (y != i) return false; // 다르게 나가졌으면 false로
+			st = new StringTokenizer(br.readLine(), " ");
+			int x = Integer.parseInt(st.nextToken());
+			int y = Integer.parseInt(st.nextToken());
+			int d = Integer.parseInt(st.nextToken());
+			int g = Integer.parseInt(st.nextToken());
+			// 1. g세대 부터 최초의 세대까지 방향을 다 얻어온다.
+			ArrayList<Integer> directions = getDirections(d, g);
+			// 2. x,y위치에서 방향별 꼭지점을 마킹한다.
+			markEdge(x,y,directions);
 		}
-		return true;
+		// 3. 사각형의 개수를 센다.
+		int cnt =0;
+		for(int i=0;i<100;++i) {
+			for(int j=0;j<100;++j) {
+				if(isSquare(i,j)) ++cnt;
+			}
+		}
+		System.out.println(cnt);
 	}
 
 }
