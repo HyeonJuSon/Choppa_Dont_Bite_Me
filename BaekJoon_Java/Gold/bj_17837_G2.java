@@ -6,7 +6,6 @@ import java.util.*;
 public class bj_17837_G2 {
 	static class Horse {
 		int dir, x, y;
-
 		Horse(int dir, int x, int y) {
 			this.dir = dir;
 			this.x = x;
@@ -17,7 +16,6 @@ public class bj_17837_G2 {
 	static class Tower {
 		int color;
 		ArrayList<Integer> list;
-
 		Tower(int color) {
 			this.color = color;
 			list = new ArrayList<Integer>();
@@ -28,7 +26,7 @@ public class bj_17837_G2 {
 	static Tower[][] map;
 	static ArrayList<Horse> horses;
 	static final int white = 0, red = 1, blue = 2;
-	static int[][] direction = { { 0, 0, 0, -1, 1 }, { 0, 1, -1, 0, 0 } }; // ¿ì,ÁÂ,»ó,ÇÏ
+	static int[][] direction = { { 0, 0, 0, -1, 1 }, { 0, 1, -1, 0, 0 } }; // ìš°,ì¢Œ,ìƒ,í•˜
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -42,7 +40,7 @@ public class bj_17837_G2 {
 				map[i][j] = new Tower(Integer.parseInt(st.nextToken()));
 			}
 		}
-		horses = new ArrayList<>(); // ¸»ÀÇ Á¤º¸¸¦ ´ã¾ÆµÑ ¸®½ºÆ®
+		horses = new ArrayList<>(); // ë§ì˜ ì •ë³´ë¥¼ ë‹´ì•„ë‘˜ ë¦¬ìŠ¤íŠ¸
 		for (int i = 0; i < K; ++i) {
 			st = new StringTokenizer(br.readLine());
 			int x = Integer.parseInt(st.nextToken()) - 1;
@@ -62,69 +60,50 @@ public class bj_17837_G2 {
 		System.out.println(answer > 1000 ? -1 : answer);
 	}
 
-	static void copy(ArrayList<Integer> tmp, ArrayList<Integer> ori) {
-		tmp.clear();
-		for (int o : ori) {
-			tmp.add(o);
-		}
-	}
-
 	static void move() {
-		// ¼ø¼­´ë·Î ÀÌµ¿ÇÑ´Ù.
+		// ìˆœì„œëŒ€ë¡œ ì´ë™í•œë‹¤.
 		for (int i = 0; i < K; ++i) {
-			Horse now = horses.get(i); // ÇöÀç ¸»
+			Horse now = horses.get(i); // í˜„ì¬ ë§
 			int nx = now.x + direction[0][now.dir];
 			int ny = now.y + direction[1][now.dir];
-			ArrayList<Integer> nowList = new ArrayList<>();// Çö À§Ä¡ÀÇ °»½Å Àü ¸®½ºÆ®
-			copy(nowList, map[now.x][now.y].list);
-			ArrayList<Integer> tmp = new ArrayList<>(); // ÀÌµ¿ À§Ä¡ÀÇ °»½Å ÈÄ ¸®½ºÆ®
-			ArrayList<Integer> after = new ArrayList<>(); // Çö À§Ä¡ÀÇ °»½Å ÈÄ ¸®½ºÆ®
+			ArrayList<Integer> tmp = new ArrayList<>(); // ì´ë™ ìœ„ì¹˜ì˜ ê°±ì‹  í›„ ë¦¬ìŠ¤íŠ¸
 			int nowLen = map[now.x][now.y].list.size();
-			int target = map[now.x][now.y].list.indexOf(i); // ÇöÀç ¸»ÀÌ ¸®½ºÆ®ÀÇ ¸î ¹øÂ° À§Ä¡¿¡ µé¾îÀÖ´Â°¡?
+			int target = map[now.x][now.y].list.indexOf(i); // í˜„ì¬ ë§ì´ ë¦¬ìŠ¤íŠ¸ì˜ ëª‡ ë²ˆì§¸ ìœ„ì¹˜ì— ë“¤ì–´ìˆëŠ”ê°€?
 			if (!isBoundary(nx, ny) || map[nx][ny].color == blue) {
-				now.dir = getReverseDir(now.dir); // ¹æÇâÀ» ¹Ù²Ù°í
+				now.dir = getReverseDir(now.dir); // ë°©í–¥ì„ ë°”ê¾¸ê³ 
 				nx = now.x + direction[0][now.dir];
 				ny = now.y + direction[1][now.dir];
 				if (!isBoundary(nx, ny) || map[nx][ny].color == blue) {
-					continue; // ¶Ç ÀÌµ¿¸øÇÏ¸é À¯Áö
+					continue; // ë˜ ì´ë™ëª»í•˜ë©´ ìœ ì§€
 				}
 				if (map[nx][ny].color == red) {
-					for (int x = 0; x < target; ++x)
-						after.add(nowList.get(x)); // ÀÌµ¿ ¾ÈµÇ´Â ¿ø¼Ò´Â À¯Áö
-					for (int x = nowLen - 1; x >= target; --x)
-						tmp.add(nowList.get(x));// »¡°­Àº °Å²Ù·Î µé¾î°¨
+					tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
+					Collections.reverse(tmp);
 				} else {
-					for (int x = 0; x < target; ++x) // ÀÌµ¿À» ¾ÈÇÒ ¾Öµé
-						after.add(nowList.get(x));
-					for (int x = target; x < nowLen; ++x) // ÀÌµ¿ ÇÒ ¾Öµé
-						tmp.add(nowList.get(x));
+					tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
 				}
 			} else if (map[nx][ny].color == red) {
-				for (int x = 0; x < target; ++x)
-					after.add(nowList.get(x)); // ÀÌµ¿ ¾ÈµÇ´Â ¿ø¼Ò´Â À¯Áö
-				for (int x = nowLen - 1; x >= target; --x)
-					tmp.add(nowList.get(x));// »¡°­Àº °Å²Ù·Î µé¾î°¨
-			} else if (map[nx][ny].color == white) { // ±×³É ¹Ù·Î ÀÌµ¿
-				for (int x = 0; x < target; ++x)
-					after.add(nowList.get(x));
-				for (int x = target; x < nowLen; ++x)
-					tmp.add(nowList.get(x));
+				tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
+				Collections.reverse(tmp);
+			} else if (map[nx][ny].color == white) { // ê·¸ëƒ¥ ë°”ë¡œ ì´ë™
+				tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
 			}
-			copy(map[now.x][now.y].list, after);
-			for (int idx : tmp) { // ´Ù°°ÀÌ À§Ä¡¸¦ ¹Ù²ãÁà¾ß ÇÑ´Ù.
+			// ì´ë™ ì•ˆë˜ëŠ” ì›ì†ŒëŠ” ìœ ì§€
+			map[now.x][now.y].list = new ArrayList<>(map[now.x][now.y].list.subList(0, target));
+			// ì´ë™í•  ë§ë“¤ì„ ê°±ì‹ í•´ì¤€ë‹¤.
+			for (int idx : tmp) {
 				map[nx][ny].list.add(idx);
 				horses.get(idx).x = nx;
 				horses.get(idx).y = ny;
 			}
+			// í„´ ì¤‘ì— ëë‚  ìˆ˜ ìˆìŒ
 			if (isClear())
 				break;
 		}
 	}
 
 	static int getReverseDir(int d) {
-		if (d == 1 || d == 3)
-			return d + 1;
-		return d - 1;
+		return d == 1 || d == 3 ? d + 1 : d - 1;
 	}
 
 	static boolean isBoundary(int x, int y) {
@@ -141,5 +120,3 @@ public class bj_17837_G2 {
 		return false;
 	}
 }
-// ¹øÈ£, ¹æÇâ, À§Ä¡
-// 
