@@ -6,7 +6,6 @@ import java.util.*;
 public class bj_17837_G2 {
 	static class Horse {
 		int dir, x, y;
-
 		Horse(int dir, int x, int y) {
 			this.dir = dir;
 			this.x = x;
@@ -17,7 +16,6 @@ public class bj_17837_G2 {
 	static class Tower {
 		int color;
 		ArrayList<Integer> list;
-
 		Tower(int color) {
 			this.color = color;
 			list = new ArrayList<Integer>();
@@ -62,23 +60,13 @@ public class bj_17837_G2 {
 		System.out.println(answer > 1000 ? -1 : answer);
 	}
 
-	static void copy(ArrayList<Integer> tmp, ArrayList<Integer> ori) {
-		tmp.clear();
-		for (int o : ori) {
-			tmp.add(o);
-		}
-	}
-
 	static void move() {
 		// 순서대로 이동한다.
 		for (int i = 0; i < K; ++i) {
 			Horse now = horses.get(i); // 현재 말
 			int nx = now.x + direction[0][now.dir];
 			int ny = now.y + direction[1][now.dir];
-			ArrayList<Integer> nowList = new ArrayList<>();// 현 위치의 갱신 전 리스트
-			copy(nowList, map[now.x][now.y].list);
 			ArrayList<Integer> tmp = new ArrayList<>(); // 이동 위치의 갱신 후 리스트
-			ArrayList<Integer> after = new ArrayList<>(); // 현 위치의 갱신 후 리스트
 			int nowLen = map[now.x][now.y].list.size();
 			int target = map[now.x][now.y].list.indexOf(i); // 현재 말이 리스트의 몇 번째 위치에 들어있는가?
 			if (!isBoundary(nx, ny) || map[nx][ny].color == blue) {
@@ -89,42 +77,33 @@ public class bj_17837_G2 {
 					continue; // 또 이동못하면 유지
 				}
 				if (map[nx][ny].color == red) {
-					for (int x = 0; x < target; ++x)
-						after.add(nowList.get(x)); // 이동 안되는 원소는 유지
-					for (int x = nowLen - 1; x >= target; --x)
-						tmp.add(nowList.get(x));// 빨강은 거꾸로 들어감
+					tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
+					Collections.reverse(tmp);
 				} else {
-					for (int x = 0; x < target; ++x) // 이동을 안할 애들
-						after.add(nowList.get(x));
-					for (int x = target; x < nowLen; ++x) // 이동 할 애들
-						tmp.add(nowList.get(x));
+					tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
 				}
 			} else if (map[nx][ny].color == red) {
-				for (int x = 0; x < target; ++x)
-					after.add(nowList.get(x)); // 이동 안되는 원소는 유지
-				for (int x = nowLen - 1; x >= target; --x)
-					tmp.add(nowList.get(x));// 빨강은 거꾸로 들어감
+				tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
+				Collections.reverse(tmp);
 			} else if (map[nx][ny].color == white) { // 그냥 바로 이동
-				for (int x = 0; x < target; ++x)
-					after.add(nowList.get(x));
-				for (int x = target; x < nowLen; ++x)
-					tmp.add(nowList.get(x));
+				tmp = new ArrayList<>(map[now.x][now.y].list.subList(target, nowLen));
 			}
-			copy(map[now.x][now.y].list, after);
-			for (int idx : tmp) { // 다같이 위치를 바꿔줘야 한다.
+			// 이동 안되는 원소는 유지
+			map[now.x][now.y].list = new ArrayList<>(map[now.x][now.y].list.subList(0, target));
+			// 이동할 말들을 갱신해준다.
+			for (int idx : tmp) {
 				map[nx][ny].list.add(idx);
 				horses.get(idx).x = nx;
 				horses.get(idx).y = ny;
 			}
+			// 턴 중에 끝날 수 있음
 			if (isClear())
 				break;
 		}
 	}
 
 	static int getReverseDir(int d) {
-		if (d == 1 || d == 3)
-			return d + 1;
-		return d - 1;
+		return d == 1 || d == 3 ? d + 1 : d - 1;
 	}
 
 	static boolean isBoundary(int x, int y) {
@@ -141,5 +120,3 @@ public class bj_17837_G2 {
 		return false;
 	}
 }
-// 번호, 방향, 위치
-// 
