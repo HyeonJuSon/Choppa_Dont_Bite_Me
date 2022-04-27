@@ -7,7 +7,7 @@ public class bj_13460_G1 {
 
 	static int N, M, original[][];
 	static final int empty = 0, wall = 1, hole = 2, red = 3, blue = 4;
-	static final int L = 0, R = 1, U = 2, D = 3;
+	static final int Left = 0, Right = 1, Up = 2, Down = 3;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -15,9 +15,8 @@ public class bj_13460_G1 {
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
 		original = new int[N][M];
-		Ball redBall = new Ball(-1, -1);
-		Ball blueBall = new Ball(-1, -1);
-		Ball goal = new Ball(-1, -1);
+		int[] red = new int[2];
+		int[] blue = new int[2];
 		for (int i = 0; i < N; ++i) {
 			String now = br.readLine();
 			for (int j = 0; j < M; ++j) {
@@ -28,198 +27,207 @@ public class bj_13460_G1 {
 					original[i][j] = empty;
 				else if (ch == 'O') {
 					original[i][j] = hole;
-					goal = new Ball(i, j);
 				} else if (ch == 'R') {
-					original[i][j] = red;
-					redBall = new Ball(i, j);
+					red = new int[] { i, j };
 				} else {
-					original[i][j] = blue;
-					blueBall = new Ball(i, j);
+					blue = new int[] { i, j };
 				}
 			}
 		}
 		// 탐색한다.
 		Queue<Node> bfs = new LinkedList<>();
 		int answer = Integer.MAX_VALUE;
-		bfs.add(new Node(original, 0)); // 한번도 안굴린 상태를 넣어준다.
+		bfs.add(new Node(0, red, blue)); // 한번도 안굴린 상태를 넣어준다.
 		while (!bfs.isEmpty()) {
 			Node now = bfs.poll();
-			if (now.cnt > answer || now.cnt > 10) {
+//			for(int i=0;i<N;++i) {
+//				for(int j=0;j<M;++j) {
+//					System.out.print(now.nowMap[i][j]+" ");
+//				}
+//				System.out.println();
+//			}
+//			System.out.println();
+			if (now.cnt >= answer || now.cnt > 10) {
 				continue;
 			}
 			for (int d = 0; d < 4; ++d) {
-				int[][] tmp = copy(now.nowMap); // 복사해서 넣어준다.(굴려야하기 때문)
-				int goalState = turnBall(tmp, d); // 0은 이동 가능, 1은 빨강이 골일때, 2는 파랑이 골에 들어갔을 떄
-				if(goalState==0) {//더 굴러가야한다면
-					bfs.add(new Node(tmp, now.cnt+1));
-				}else if(goalState == 1) {
-					answer = Math.min(answer, now.cnt+1);
+				int[] tmpR= new int[] {now.R[0], now.R[1]};
+				int[] tmpB = new int[] {now.B[0], now.B[1]};
+				int goalState = turnBall(tmpR, tmpB, d); // 0은 이동 가능, 1은 빨강이 골일때, 2는 파랑이 골에 들어갔을 떄
+				if (goalState == 0) {// 더 굴러가야한다면
+					bfs.add(new Node(now.cnt + 1, tmpR, tmpB));
+				} else if (goalState == 1) {
+					answer = Math.min(answer, now.cnt + 1);
 					continue;
-				}else {
+				} else {
 					continue;
 				}
 			}
 		}
 		// 출력
-		System.out.println(answer == Integer.MAX_VALUE ? -1 : answer);
+		System.out.println(answer == Integer.MAX_VALUE || answer == 11 ? -1 : answer);
 	}
 
-	static int turnBall(int[][] map, int d) {
+	static int turnBall(int[] R, int[] B, int d) {
+		int[] holes = new int[2];// 0-red, 1-blue
 		// 같이 들어가는 경우
-		if (d == L) { // 좌로 굴릴 때.
-			for (int i = 1; i < N-1; ++i) {
-				for (int j = 1; j < M-1; ++j) {
-					if (map[i][j] == red) {
-						int tmp = j;
+		if (d == Left) { // 좌로 굴릴 때.
+			for (int i = 1; i < N - 1; ++i) {
+				for (int j = 1; j < M - 1; ++j) {
+					int movePos = j;
+					if (R[0] == i && R[1] == j) { // 현재 위치가 빨간공이라면
 						while (true) {
-							if (map[i][tmp] != wall && map[i][tmp] != blue) {
-								if (map[i][tmp] == hole) {
-									return 1; // 구멍에 빨간 공이 들어갔음.
+							if (original[i][movePos - 1] != wall && (B[0]!=i || B[1]!=movePos-1)) {
+								if (original[i][movePos - 1] == hole) {// 이동하려는 위치가 구멍이라면
+									holes[0] = 1; // 빨간공이 구멍에 들어갔음을 체크하고
+									R[1] = -1;
+									break; // 구멍에 빨간 공이 들어갔음.
 								}
-								map[i][tmp + 1] = empty;
-								map[i][tmp--] = red;
-							} else
+								--movePos;
+							} else {
+								R[1] = movePos; // 이동위치로 옮겨주고
 								break;
+							}
 						}
-					} else if(map[i][j]==blue) {
-						int tmp = j;
+					} else if (B[0] == i && B[1] == j) { // 현재 위치가 파란 공이라면
 						while (true) {
-							if (map[i][tmp] != wall  && map[i][tmp] != red) {
-								if (map[i][tmp] == hole) {
-									return 2; // 구멍에 파란 공이 들어갔음.
+							if (original[i][movePos - 1] != wall && (R[0]!=i || R[1]!=movePos-1)) {
+								if (original[i][movePos - 1] == hole) {
+									holes[1] = 1; // 파란공 들어갔음을 체크
+									B[1] = -1;
+									break; // 구멍에 파란 공이 들어갔음.
 								}
-								map[i][tmp + 1] = empty;
-								map[i][tmp--] = blue;
-							} else
+								--movePos;
+							} else {
+								B[1] = movePos;
 								break;
-						}
-					}
-				}
-			}
-		} else if (d == R) {
-			for (int i = 1; i < N-1; ++i) {
-				for (int j = M - 1; j >= 1; --j) {
-					if (map[i][j] == red) { // 빨간공이면
-						int tmp = j;
-						while (true) {
-							if (map[i][tmp] != wall && map[i][tmp] != blue) {
-								if (map[i][tmp] == hole) {
-									return 1; // 구멍에 빨간 공이 들어갔음.
-								}
-								map[i][tmp - 1] = empty;
-								map[i][tmp++] = red;
-							} else
-								break;
-						}
-					} else if(map[i][j]==blue) {
-						int tmp = j;
-						while (true) {
-							if (map[i][tmp] != wall && map[i][tmp] != red) {
-								if (map[i][tmp] == hole) {
-									return 2; // 구멍에 파란 공이 들어갔음.
-								}
-								map[i][tmp - 1] = empty;
-								map[i][tmp++] = blue;
-							} else
-								break;
+							}
 						}
 					}
 				}
 			}
-		} else if (d == U) {
-			for (int j = 1; j < M-1; ++j) {
-				for (int i = 1; i < N-1; ++i) {
-					if (map[i][j] == red) {
-						int tmp = i;
+		} else if (d == Right) {
+			for (int i = 1; i < N - 1; ++i) {
+				for (int j = M - 2; j >= 1; --j) {
+					int movePos = j;
+					if (R[0] == i && R[1] == j) { // 현재 위치가 빨간공이라면
 						while (true) {
-							if ( map[tmp][j] != wall && map[tmp][j] != blue) {
-								if (map[tmp][j] == hole) {
-									return 1; // 구멍에 빨간 공이 들어갔음.
+							if (original[i][movePos + 1] != wall && (B[0]!=i || B[1]!=movePos+1)) {
+								if (original[i][movePos + 1] == hole) {// 이동하려는 위치가 구멍이라면
+									holes[0] = 1; // 빨간공이 구멍에 들어갔음을 체크하고
+									R[1] = -1;
+									break; // 구멍에 빨간 공이 들어갔음.
 								}
-								map[tmp + 1][j] = empty;
-								map[tmp--][j] = red;
-							} else
+								++movePos;
+							} else {
+								R[1] = movePos; // 이동위치로 옮겨주고
 								break;
+							}
 						}
-					} else if(map[i][j]==blue){
-						int tmp = i;
+					} else if (B[0] == i && B[1] == j) { // 현재 위치가 파란 공이라면
 						while (true) {
-							if (map[tmp][j] != wall && map[tmp][j] != red) {
-								if (map[tmp][j] == hole) {
-									return 2; // 구멍에 파란 공이 들어갔음.
+							if (original[i][movePos + 1] != wall && (R[0]!=i || R[1]!=movePos+1)) {
+								if (original[i][movePos + 1] == hole) {
+									holes[1] = 1; // 파란공 들어갔음을 체크
+									B[1] = -1;
+									break; // 구멍에 파란 공이 들어갔음.
 								}
-								map[tmp + 1][j] = empty;
-								map[tmp--][j] = blue;
-							} else
+								++movePos;
+							} else {
+								B[1] = movePos;
 								break;
+							}
 						}
 					}
 				}
 			}
-		} else if (d == D) {
-			for (int j = 1; j < M-1; ++j) {
-				for (int i = N - 1; i >= 1; --i) {
-					if (map[i][j] == red) {
-						int tmp = i;
+		} else if (d == Up) {
+			for (int j = 1; j < M - 1; ++j) {
+				for (int i = 1; i < N - 1; ++i) {
+					int movePos = i;
+					if (R[0] == i && R[1] == j) { // 현재 위치가 빨간공이라면
 						while (true) {
-							if (map[tmp][j] != wall && map[tmp][j]!= blue) {
-								if (map[tmp][j] == hole) {
-									return 1; // 구멍에 빨간 공이 들어갔음.
+							if (original[movePos - 1][j] != wall && (B[0]!=movePos-1 || B[1]!=j)) {
+								if (original[movePos - 1][j] == hole) {// 이동하려는 위치가 구멍이라면
+									holes[0] = 1; // 빨간공이 구멍에 들어갔음을 체크하고
+									R[0] = -1;
+									break; // 구멍에 빨간 공이 들어갔음.
 								}
-								map[tmp - 1][j] = empty;
-								map[tmp++][j] = red;
-							} else
+								--movePos;
+							} else {
+								R[0] = movePos;// 이동위치로 옮겨주고
 								break;
+							}
 						}
-					} else if(map[i][j]==blue){
-						int tmp = i;
+					} else if (B[0] == i && B[1] == j) { // 현재 위치가 파란 공이라면
 						while (true) {
-							if (map[tmp][j] != wall && map[tmp][j] != red) {
-								if (map[tmp][j] == hole) {
-									return 2; // 구멍에 파란 공이 들어갔음.
+							if (original[movePos - 1][j] != wall && (R[0]!=movePos-1 || R[1]!=j)) {
+								if (original[movePos - 1][j] == hole) {
+									holes[1] = 1; // 파란공 들어갔음을 체크
+									B[0] = -1;
+									break; // 구멍에 파란 공이 들어갔음.
 								}
-								map[tmp - 1][j] = empty;
-								map[tmp++][j] = blue;
-							} else
+								--movePos;
+							} else {
+								B[0] = movePos;
 								break;
+							}
+						}
+					}
+				}
+			}
+		} else if (d == Down) {
+			for (int j = 1; j < M - 1; ++j) {
+				for (int i = N - 2; i >= 1; --i) {
+					int movePos = i;
+					if (R[0] == i && R[1] == j) { // 현재 위치가 빨간공이라면
+						while (true) {
+							if (original[movePos + 1][j] != wall && (B[0]!=movePos+1 || B[1]!=j)) {
+								if (original[movePos + 1][j] == hole) {// 이동하려는 위치가 구멍이라면
+									holes[0] = 1; // 빨간공이 구멍에 들어갔음을 체크하고
+									R[0] = -1;
+									break; // 구멍에 빨간 공이 들어갔음.
+								}
+								++movePos;
+							} else {
+								R[0] = movePos; // 이동위치로 옮겨주고
+								break;
+							}
+						}
+					} else if (B[0] == i && B[1] == j) { // 현재 위치가 파란 공이라면
+						while (true) {
+							if (original[movePos + 1][j] != wall && (R[0]!=movePos+1 || R[1]!=j)) {
+								if (original[movePos + 1][j] == hole) {
+									holes[1] = 1; // 파란공 들어갔음을 체크
+									B[0] = -1;
+									break; // 구멍에 파란 공이 들어갔음.
+								}
+								++movePos;
+							} else {
+								B[0] = movePos;
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
-		return 0; // 이동 완료
-	}
-
-	static int[][] copy(int[][] from) {
-		int[][] answer = new int[N][M];
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < M; ++j) {
-				answer[i][j] = from[i][j];
-			}
-		}
-		return answer;
-	}
-
-	static class Ball {
-		int x, y;
-
-		public Ball(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
+		if (holes[0] == 0 && holes[1] == 0)
+			return 0;
+		else if (holes[0] == 1 && holes[1] == 0)
+			return 1;
+		return 2;
 	}
 
 	static class Node {
-		int[][] nowMap = new int[N][M];
 		int cnt;
+		int[] R;
+		int[] B;
 
-		public Node( int[][] nowMap, int cnt) {
+		public Node(int cnt, int[] r, int[] b) {
 			this.cnt = cnt;
-			for (int i = 0; i < N; ++i) {
-				for (int j = 0; j < M; ++j) {
-					this.nowMap[i][j] = nowMap[i][j];
-				}
-			}
+			R = r;
+			B = b;
 		}
 	}
 }
