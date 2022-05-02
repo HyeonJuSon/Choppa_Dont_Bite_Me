@@ -25,14 +25,3 @@ public class bj_12865_G5 {
 		System.out.println(dp[N][W]);
 	}
 
-}
-
-/*
- * 총 넣을 물건의 개수 , 버틸수 있는 무게 w, v 
-4 7
-6 13 
-4 8
-3 6
-5 12
- * 
- */

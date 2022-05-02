@@ -7,11 +7,6 @@ public class BJ_14503_G5 {
 	// 북 동 남 서
 	static int[][] dir = { { -1, 0, 1, 0 }, { 0, 1, 0, -1 } };
 	static int N, M;
-
-	static boolean isBoundary(int x, int y) {
-		return 0 <= x && x < N && 0 <= y && y < M;
-	}
-
 	static boolean[][] isVisited;
 	static int[][] map;
 
@@ -74,7 +69,11 @@ public class BJ_14503_G5 {
 		}
 		System.out.println(answer);
 	}
-
+	
+	static boolean isBoundary(int x, int y) {
+		return 0 <= x && x < N && 0 <= y && y < M;
+	}
+	
 	static int getBackDir(int mDir) {
 		int nDir = -1;
 		nDir = mDir - 2;

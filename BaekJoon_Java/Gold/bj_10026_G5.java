@@ -47,8 +47,6 @@ public class bj_10026_G5 {
 	static int[][] dir = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
 
 	static void dfs(boolean rgb, int val,int i, int j, boolean[][] isVisited) {
-		
-		
 		for (int d = 0; d < 4; ++d) {
 			int ni = i + dir[0][d];
 			int nj = j + dir[1][d];
