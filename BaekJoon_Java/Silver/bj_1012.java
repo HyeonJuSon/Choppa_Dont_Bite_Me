@@ -1,58 +1,57 @@
-package BJ;
 import java.io.*;
 import java.util.*;
-public class bj_1012 {
-	static int M, N, K, Cnt; 						// M - °¡·Î, N - ¼¼·Î, K - ¹èÃßÀÇ °³¼ö, Áö··ÀÌ °³¼ö
-	static int[][] ground; 							// ¹èÃß ¹ç.
-	static int[] dx = { -1, 1, 0, 0 }; 				// Çà ¹æÇâ
-	static int[] dy = { 0, 0, -1, 1 }; 				// ¿­ ¹æÇâ
-	static boolean isFirst;							// Ä«¿îÆÃ ÇÃ·¡±×
+public class Main {
+	static int M, N, K, Cnt; 						// M - ê°€ë¡œ, N - ì„¸ë¡œ, K - ë°°ì¶”ì˜ ê°œìˆ˜, ì§€ë ì´ ê°œìˆ˜
+	static int[][] ground; 							// ë°°ì¶” ë°­.
+	static int[] dx = { -1, 1, 0, 0 }; 				// í–‰ ë°©í–¥
+	static int[] dy = { 0, 0, -1, 1 }; 				// ì—´ ë°©í–¥
+	static boolean isFirst;							// ì¹´ìš´íŒ… í”Œë˜ê·¸
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
-		int T = Integer.parseInt(br.readLine()); 	// Å×ÄÉ ÀÔ·Â
-		for (int tc = 1; tc <= T; ++tc) { 			// Å×ÄÉ¼ö ¸¸Å­ ¹İº¹
+		int T = Integer.parseInt(br.readLine()); 	// í…Œì¼€ ì…ë ¥
+		for (int tc = 1; tc <= T; ++tc) { 			// í…Œì¼€ìˆ˜ ë§Œí¼ ë°˜ë³µ
 			st = new StringTokenizer(br.readLine(), " ");
-			M = Integer.parseInt(st.nextToken()); 	// M - °¡·Î
-			N = Integer.parseInt(st.nextToken()); 	// N - ¼¼·Î
-			K = Integer.parseInt(st.nextToken());	// K - ¹èÃß °³¼ö
-			ground = new int[M][N]; 				// ¹èÃß ¹ç ÇÒ´ç
-			Cnt = 0;								// Ä«¿îÆ® ÃÊ±âÈ­
-			for (int i = 0; i < K; ++i) { 			// ¹èÃß °³¼ö ¸¸Å­ ¹İº¹
+			M = Integer.parseInt(st.nextToken()); 	// M - ê°€ë¡œ
+			N = Integer.parseInt(st.nextToken()); 	// N - ì„¸ë¡œ
+			K = Integer.parseInt(st.nextToken());	// K - ë°°ì¶” ê°œìˆ˜
+			ground = new int[M][N]; 				// ë°°ì¶” ë°­ í• ë‹¹
+			Cnt = 0;								// ì¹´ìš´íŠ¸ ì´ˆê¸°í™”
+			for (int i = 0; i < K; ++i) { 			// ë°°ì¶” ê°œìˆ˜ ë§Œí¼ ë°˜ë³µ
 				st = new StringTokenizer(br.readLine(), " ");
 				int x = Integer.parseInt(st.nextToken());
 				int y = Integer.parseInt(st.nextToken());
-				ground[x][y] = 1; 					// ¹èÃß À§Ä¡ ÃÊ±âÈ­
+				ground[x][y] = 1; 					// ë°°ì¶” ìœ„ì¹˜ ì´ˆê¸°í™”
 			}
-			for (int i = 0; i < M; ++i) {			// 0,0 ºÎÅÍ Å½»ö ½ÃÀÛ -> ¹æ¹® Ã¼Å©
+			for (int i = 0; i < M; ++i) {			// 0,0 ë¶€í„° íƒìƒ‰ ì‹œì‘ -> ë°©ë¬¸ ì²´í¬
 				for (int j = 0; j < N; ++j) {
-					isFirst = true;					// Ä«¿îÆÃ ÇÃ·¡±× ÃÊ±âÈ­
-					search(i, j);					// Å½»ö È£Ãâ
+					isFirst = true;					// ì¹´ìš´íŒ… í”Œë˜ê·¸ ì´ˆê¸°í™”
+					search(i, j);					// íƒìƒ‰ í˜¸ì¶œ
 				}
 			}
-			System.out.println(Cnt);				// Ãâ·Â
+			System.out.println(Cnt);				// ì¶œë ¥
 		}
 	}
 
-	static boolean isAvailable(int x, int y) {		// °¡´ÉÇÑ ¹üÀ§ ³»ÀÎÁö °Ë»ç
+	static boolean isAvailable(int x, int y) {		// ê°€ëŠ¥í•œ ë²”ìœ„ ë‚´ì¸ì§€ ê²€ì‚¬
 		if (x < 0 || x >= M || y < 0 || y >= N) return false;
 		if (ground[x][y] != 1) return false;
 		return true;
 	}
 
 	static void search(int x, int y) {
-		if (ground[x][y] != 1) return; 				// ¹èÃß°¡ ¾Æ´Ï¶ó¸é ¸®ÅÏ(0 ¾Æ´Ï¸é -1ÀÏ ¶§ ¸®ÅÏ)
+		if (ground[x][y] != 1) return; 				// ë°°ì¶”ê°€ ì•„ë‹ˆë¼ë©´ ë¦¬í„´(0 ì•„ë‹ˆë©´ -1ì¼ ë•Œ ë¦¬í„´)
 		else {
-			ground[x][y] = -1; 						// ¹æ¹® Ã¼Å©·Î Àç»ç¿ë
-			if (isFirst) {							// ¹èÃß ÇÑ ±×·ì´ç Ä«¿îÆÃ ÇØÁÖ·Á°í ÇÃ·¡±× »ç¿ë
+			ground[x][y] = -1; 						// ë°©ë¬¸ ì²´í¬ë¡œ ì¬ì‚¬ìš©
+			if (isFirst) {							// ë°°ì¶” í•œ ê·¸ë£¹ë‹¹ ì¹´ìš´íŒ… í•´ì£¼ë ¤ê³  í”Œë˜ê·¸ ì‚¬ìš©
 				Cnt++;
 				isFirst = false;
 			}
-			for (int d = 0; d < 4; ++d) {			// 4¹æÇâ Å½»öÀ» ¼öÇà
+			for (int d = 0; d < 4; ++d) {			// 4ë°©í–¥ íƒìƒ‰ì„ ìˆ˜í–‰
 				int nx = x + dx[d];
 				int ny = y + dy[d];
-				if (isAvailable(nx, ny)) {			// ÀÌµ¿ ÇÏ·Á´Â °÷ÀÌ ÀÌµ¿ °¡´ÉÇÏ¸é 
-					search(nx, ny); 				// ÀçÅ½»ö
+				if (isAvailable(nx, ny)) {			// ì´ë™ í•˜ë ¤ëŠ” ê³³ì´ ì´ë™ ê°€ëŠ¥í•˜ë©´ 
+					search(nx, ny); 				// ì¬íƒìƒ‰
 				}
 			}
 		}
