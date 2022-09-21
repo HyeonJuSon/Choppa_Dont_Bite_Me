@@ -20,12 +20,8 @@ public class BJ_9251_G5 {
 		
 		if(dp[x][y]==null) {
 			dp[x][y]=0;
-			
-			if(A[x]==B[y]) {
-				dp[x][y] = LCS(x-1,y-1)+1;
-			}else {
-				dp[x][y] = Math.max(LCS(x-1,y), LCS(x,y-1));
-			}
+			if(A[x]==B[y]) dp[x][y] = LCS(x-1,y-1)+1;
+			else dp[x][y] = Math.max(LCS(x-1,y), LCS(x,y-1));
 		}
 		
 		return dp[x][y];
